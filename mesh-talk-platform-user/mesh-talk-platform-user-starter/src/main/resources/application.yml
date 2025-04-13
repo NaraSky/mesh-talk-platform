@@ -1,0 +1,99 @@
+server:
+  port: 8888
+
+# Spring框架核心配置
+spring:
+  # Spring MVC相关配置
+  mvc:
+    # 路径匹配策略配置
+    pathmatch:
+      # 使用Ant风格的路径匹配器（支持通配符匹配）
+      matching-strategy: ant_path_matcher
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://117.72.33.162:3306/mesh_talk_im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+  redis:
+    host: 117.72.33.162
+    port: 6379
+    database: 1
+
+  # Servlet配置
+  servlet:
+    # 文件上传配置
+    multipart:
+      # 单个文件最大允许大小
+      max-file-size: 50MB
+      # 请求体最大允许大小
+      max-request-size: 50MB
+
+# MyBatis-Plus框架配置
+mybatis-plus:
+  configuration:
+    # 禁用下划线到驼峰的自动映射（需手动处理字段命名）
+    map-underscore-to-camel-case: false
+  # XML映射文件路径配置
+  mapper-locations:
+    # 指定XML映射文件的类路径位置
+    - classpath*:mapper/*.xml
+
+# MinIO对象存储配置
+minio:
+  # 内网访问地址（用于内部服务调用）
+  endpoint: http://117.72.33.162:9001
+  # 外网访问地址（用于外部访问）
+  public: http://117.72.33.162:9001
+  # MinIO认证凭证
+  accessKey: zhiyu
+  secretKey: zhiyu1120
+  # 存储桶名称及路径配置
+  bucketName: zhiyu-im
+  imagePath: image
+  filePath: file
+
+# WebRTC配置
+webrtc:
+  # ICE服务器配置（用于网络连接中继）
+  iceServers:
+    - urls: stun:stun.l.google.com:19302
+
+# JWT令牌配置
+jwt:
+  # 访问令牌配置
+  accessToken:
+    # 令牌有效期（秒）
+    expireIn: 1800
+    # 令牌签名密钥
+    secret: zhiyu123
+  # 刷新令牌配置
+  refreshToken:
+    # 令牌有效期（秒）
+    expireIn: 604800
+    # 令牌签名密钥
+    secret: zhiyu123456
+
+# RocketMQ消息队列配置
+rocketmq:
+  # 消息服务器地址
+  name-server: 117.72.33.162:9876
+  # 生产者配置
+  producer:
+    # 生产者组名称
+    group: im-plate-group
+
+# 分布式配置
+distributed:
+  # 缓存配置
+  cache:
+    # 缓存类型（当前使用Redis）
+    type: redis
+
+# 消息配置
+message:
+  # 消息队列类型配置
+  mq:
+    # 指定使用RocketMQ作为消息中间件
+    type: rocketmq

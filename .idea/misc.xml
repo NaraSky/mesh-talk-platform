@@ -5,6 +5,10 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/mesh-talk-platform-user/mesh-talk-platform-starter/pom.xml" />
+        <option value="$PROJECT_DIR$/mesh-talk-platform-user/mesh-talk-platform-interfaces/pom.xml" />
+        <option value="$PROJECT_DIR$/mesh-talk-platform-user/mesh-talk-platform-infrastructure/pom.xml" />
+        <option value="$PROJECT_DIR$/mesh-talk-platform-user/mesh-talk-platform-domain/pom.xml" />
       </list>
     </option>
   </component>

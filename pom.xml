@@ -9,11 +9,27 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>mesh-talk-platform-application</module>
-        <module>mesh-talk-platform-domain</module>
-        <module>mesh-talk-platform-infrastructure</module>
-        <module>mesh-talk-platform-interfaces</module>
-        <module>mesh-talk-platform-starter</module>
+        <module>mesh-talk-platform-user</module>
+        <module>mesh-talk-platform-common</module>
+        <module>mesh-talk-platform-dubbo</module>
+        <module>mesh-talk-platform-friend</module>
+        <module>mesh-talk-platform-group</module>
+        <module>mesh-talk-platform-message</module>
+        <module>mesh-talk-platform-message/mesh-talk-platform-message-application</module>
+        <module>mesh-talk-platform-message/mesh-talk-platform-message-domain</module>
+        <module>mesh-talk-platform-message/mesh-talk-platform-message-infrastructure</module>
+        <module>mesh-talk-platform-message/mesh-talk-platform-message-interfaces</module>
+        <module>mesh-talk-platform-message/mesh-talk-platform-message-starter</module>
+        <module>mesh-talk-platform-group/mesh-talk-platform-group-application</module>
+        <module>mesh-talk-platform-group/mesh-talk-platform-group-domain</module>
+        <module>mesh-talk-platform-group/mesh-talk-platform-group-infrastructure</module>
+        <module>mesh-talk-platform-group/mesh-talk-platform-group-interfaces</module>
+        <module>mesh-talk-platform-group/mesh-talk-platform-group-starter</module>
+        <module>mesh-talk-platform-friend/mesh-talk-platform-friend-application</module>
+        <module>mesh-talk-platform-friend/mesh-talk-platform-friend-domain</module>
+        <module>mesh-talk-platform-friend/mesh-talk-platform-friend-infrastructure</module>
+        <module>mesh-talk-platform-friend/mesh-talk-platform-friend-interfaces</module>
+        <module>mesh-talk-platform-friend/mesh-talk-platform-friend-starter</module>
     </modules>
 
     <properties>
@@ -34,6 +50,13 @@
         <zxing.version>3.3.3</zxing.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
         <mysql.version>5.1.46</mysql.version>
+        <cola.version>3.0.0</cola.version>
+        <spring-boot.version>2.7.17</spring-boot.version>
+        <rocketmq.version>4.9.3</rocketmq.version>
+        <dubbo3.version>3.0.7</dubbo3.version>
+        <rocketmq.boot.version>2.2.2</rocketmq.boot.version>
+        <spring-cloud.version>2021.0.1</spring-cloud.version>
+        <spring-cloud-alibaba.version>2021.0.1.0</spring-cloud-alibaba.version>
     </properties>
 
     <dependencyManagement>
@@ -42,35 +65,41 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.7.17</version>
+                <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatisplus-spring-boot-starter.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid</artifactId>
                 <version>${druid.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>${velocity.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger2</artifactId>
@@ -81,6 +110,7 @@
                 <artifactId>springfox-swagger-ui</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
@@ -91,37 +121,96 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>4.1.2</version>
             </dependency>
+
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.6</version>
             </dependency>
+
             <dependency>
                 <groupId>dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>1.6.1</version>
             </dependency>
+
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-asl</artifactId>
                 <version>1.9.13</version>
             </dependency>
+
             <dependency>
                 <groupId>javax.interceptor</groupId>
                 <artifactId>javax.interceptor-api</artifactId>
                 <version>1.2</version>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-jwt</artifactId>
                 <version>1.0.10.RELEASE</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>cola-core</artifactId>
+                <version>${cola.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>cola-common</artifactId>
+                <version>${cola.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- dubbo -->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>${dubbo3.version}</version>
+            </dependency>
+
+            <!-- nacos作注册中心-->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-registry-nacos</artifactId>
+                <version>${dubbo3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-datasource-nacos</artifactId>
+                <version>${sentinal.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
