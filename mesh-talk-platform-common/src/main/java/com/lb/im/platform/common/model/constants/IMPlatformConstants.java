@@ -16,4 +16,13 @@ public class IMPlatformConstants {
      * Session数据
      */
     public static final String SESSION = "session";
+
+    /**
+     * 风控前缀
+     */
+    public static final String RISK_CONTROL_KEY_PREFIX = "risk:control:";
+
+    public static String getKey(String prefix, String key){
+        return prefix.concat(key);
+    }
 }

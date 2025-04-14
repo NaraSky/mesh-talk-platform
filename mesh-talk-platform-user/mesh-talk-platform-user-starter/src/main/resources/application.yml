@@ -104,3 +104,8 @@ mesh:
       xssRule:
         enabled: true
         order: 0
+      ipRule:
+        enabled: true
+        order: 1
+        windowsSize: 50
+        windowPeriod: 1000
