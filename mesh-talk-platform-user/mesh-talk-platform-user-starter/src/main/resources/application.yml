@@ -97,3 +97,10 @@ message:
   mq:
     # 指定使用RocketMQ作为消息中间件
     type: rocketmq
+
+mesh:
+  talk:
+    rule:
+      xssRule:
+        enabled: true
+        order: 0

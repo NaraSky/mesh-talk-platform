@@ -11,15 +11,15 @@ public enum HttpCode {
     USERNAME_ALREADY_REGISTER(10003,"该用户名已注册"),
     XSS_PARAM_ERROR(10004,"请不要输入非法内容");
 
-    private int code;
+    private Integer code;
     private String msg;
 
-    HttpCode(int code, String msg) {
+    HttpCode(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 
