@@ -12,16 +12,14 @@ import com.lb.im.platform.common.session.UserSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import java.net.UnknownHostException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-/**
- * 规则链服务的基础抽象类，提供获取服务名称、日志记录及IP地址解析功能。
- */
 public abstract class BaseRuleChainService implements RuleChainService {
+
+    private final Logger logger = LoggerFactory.getLogger(BaseRuleChainService.class);
 
     protected static final int DEFAULT_WINDOWS_SIZE = 50;
     protected static final int DEFAULT_WINDOWS_PERIOD = 1000;
@@ -35,27 +33,12 @@ public abstract class BaseRuleChainService implements RuleChainService {
     private static final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
     private static final String SEPARATOR = ",";
 
-    /**
-     * 获取当前服务的服务名称。
-     *
-     * @return 服务名称字符串
-     */
-    public abstract String getServiceName();
-
-    private final Logger logger = LoggerFactory.getLogger(BaseRuleChainService.class);
-
-    /**
-     * 初始化规则链服务，并记录当前服务名称。
-     */
     public BaseRuleChainService() {
         logger.info("IMBaseRuleChainService|当前规则服务|{}", this.getServiceName());
     }
 
     /**
-     * 从HTTP请求中解析客户端的IP地址。
-     *
-     * @param request 当前的ServerHttpRequest对象
-     * @return 解析后的客户端IP地址，格式为IPv4（替换可能的冒号）
+     * 获取ip地址
      */
     protected String getIp(HttpServletRequest request) {
         if (request == null) {
@@ -142,4 +125,8 @@ public abstract class BaseRuleChainService implements RuleChainService {
         return JSON.parseObject(strJson, UserSession.class);
     }
 
+    /**
+     * 当前服务的服务名称
+     */
+    public abstract String getServiceName();
 }

@@ -101,6 +101,8 @@ message:
 mesh:
   talk:
     rule:
+      authRule:
+        order: 10
       xssRule:
         enabled: true
         order: 0
