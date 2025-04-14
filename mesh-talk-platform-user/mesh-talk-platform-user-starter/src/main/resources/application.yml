@@ -71,7 +71,7 @@ jwt:
   # 刷新令牌配置
   refreshToken:
     # 令牌有效期（秒）
-    expireIn: 604800
+    expireIn: 604800  #7天
     # 令牌签名密钥
     secret: zhiyu123456
 
@@ -113,6 +113,6 @@ mesh:
         windowPeriod: 1000
       pathRule:
         enabled: true
-        order: 1
+        order: 2
         windowsSize: 50
         windowPeriod: 1000

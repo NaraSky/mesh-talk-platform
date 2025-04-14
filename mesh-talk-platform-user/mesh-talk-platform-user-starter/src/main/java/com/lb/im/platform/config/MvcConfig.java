@@ -28,7 +28,7 @@ public class MvcConfig implements WebMvcConfigurer {
         // 配置拦截器排除特定路径
         registry.addInterceptor(imInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login","/logout","/register","/refreshToken",
+                .excludePathPatterns("/login", "/logout", "/register", "/refreshToken",
                                      "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
     }
 
@@ -38,7 +38,7 @@ public class MvcConfig implements WebMvcConfigurer {
      * @return BCryptPasswordEncoder实例，实现PasswordEncoder接口
      */
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         // 使用BCrypt加密密码
         return new BCryptPasswordEncoder();
     }

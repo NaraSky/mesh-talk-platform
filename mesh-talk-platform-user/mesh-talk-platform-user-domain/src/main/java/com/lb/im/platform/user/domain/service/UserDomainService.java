@@ -1,5 +1,6 @@
 package com.lb.im.platform.user.domain.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.lb.im.platform.common.model.entity.User;
 
 import java.util.List;
