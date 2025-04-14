@@ -109,3 +109,8 @@ mesh:
         order: 1
         windowsSize: 50
         windowPeriod: 1000
+      pathRule:
+        enabled: true
+        order: 1
+        windowsSize: 50
+        windowPeriod: 1000
