@@ -116,6 +116,8 @@ redis:
 message:
   # 消息队列类型配置
   mq:
+    event:
+      type: rocketmq
     # 指定使用RocketMQ作为消息中间件
     type: rocketmq
 
