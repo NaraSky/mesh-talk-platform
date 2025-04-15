@@ -1,6 +1,7 @@
 package com.lb.im.platform.user.controller;
 
 import com.lb.im.platform.common.model.dto.LoginDTO;
+import com.lb.im.platform.common.model.dto.ModifyPwdDTO;
 import com.lb.im.platform.common.model.dto.RegisterDTO;
 import com.lb.im.platform.common.model.vo.LoginVO;
 import com.lb.im.platform.common.response.ResponseMessage;
@@ -43,4 +44,10 @@ public class LoginController {
         return ResponseMessageFactory.getSuccessResponseMessage(vo);
     }
 
+    @PutMapping("/modifyPwd")
+    @ApiOperation(value = "修改密码",notes="修改用户密码")
+    public ResponseMessage<String> update(@Valid @RequestBody ModifyPwdDTO dto){
+        userService.modifyPassword(dto);
+        return ResponseMessageFactory.getSuccessResponseMessage();
+    }
 }

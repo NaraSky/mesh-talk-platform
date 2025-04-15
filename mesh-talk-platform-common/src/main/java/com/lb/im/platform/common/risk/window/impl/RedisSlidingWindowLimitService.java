@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@ConditionalOnProperty(name = "distributed.cache.type", havingValue = "redis")
+@ConditionalOnProperty(name = "distribute.cache.type", havingValue = "redis")
 public class RedisSlidingWindowLimitService implements SlidingWindowLimitService {
 
     @Autowired

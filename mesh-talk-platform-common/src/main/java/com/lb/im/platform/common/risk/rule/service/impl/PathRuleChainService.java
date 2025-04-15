@@ -20,20 +20,20 @@ public class PathRuleChainService extends BaseRuleChainService implements RuleCh
 
     private final Logger logger = LoggerFactory.getLogger(PathRuleChainService.class);
 
-    @Value("${bh.im.rule.pathRule.enabled}")
+    @Value("${mesh.talk.rule.pathRule.enabled}")
     private Boolean pathRuleEnabled;
 
-    @Value("${bh.im.rule.pathRule.order}")
+    @Value("${mesh.talk.rule.pathRule.order}")
     private Integer pathRuleOrder;
     /**
      * 滑动窗口大小
      */
-    @Value("${bh.im.rule.pathRule.windowsSize}")
+    @Value("${mesh.talk.rule.pathRule.windowsSize}")
     private Integer windowsSize;
     /**
      * 限流窗口的周期
      */
-    @Value("${bh.im.rule.pathRule.windowPeriod}")
+    @Value("${mesh.talk.rule.pathRule.windowPeriod}")
     private Long windowPeriod;
 
     @Autowired

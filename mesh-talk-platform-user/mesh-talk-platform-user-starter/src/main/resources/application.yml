@@ -3,6 +3,10 @@ server:
 
 # Spring框架核心配置
 spring:
+  application:
+    name: mesh-talk-platform-user
+  main:
+    allow-bean-definition-overriding: true
   # Spring MVC相关配置
   mvc:
     # 路径匹配策略配置
@@ -12,14 +16,24 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://117.72.33.162:3306/mesh_talk_im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://117.72.33.162:13306/mesh_talk_im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
     username: root
     password: root
 
   redis:
+    database: 0
     host: 117.72.33.162
-    port: 6379
-    database: 1
+    port: 16379
+    password:
+    timeout: 30000
+    lettuce:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: 5000
+    address: redis://117.72.33.162:16379
 
   # Servlet配置
   servlet:
@@ -84,12 +98,19 @@ rocketmq:
     # 生产者组名称
     group: im-plate-group
 
-# 分布式配置
-distributed:
-  # 缓存配置
+local:
   cache:
-    # 缓存类型（当前使用Redis）
+    type: guava
+
+distribute:
+  cache:
     type: redis
+  lock:
+    type: redisson
+
+redis:
+  arrange:
+    type: single # single or cluster
 
 # 消息配置
 message:
@@ -97,6 +118,9 @@ message:
   mq:
     # 指定使用RocketMQ作为消息中间件
     type: rocketmq
+
+#logging:
+#  config: classpath:logback-prod.xml
 
 mesh:
   talk:

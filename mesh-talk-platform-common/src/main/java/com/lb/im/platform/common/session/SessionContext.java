@@ -1,6 +1,8 @@
 package com.lb.im.platform.common.session;
 
+import com.lb.im.platform.common.exception.IMException;
 import com.lb.im.platform.common.model.constants.IMPlatformConstants;
+import com.lb.im.platform.common.model.enums.HttpCode;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -22,7 +24,10 @@ public class SessionContext {
                 cast(RequestContextHolder.getRequestAttributes());
         /* 从ServletRequestAttributes中获取HttpServletRequest对象 */
         HttpServletRequest request = requestAttributes.getRequest();
-        /* 从请求属性中获取用户会话对象，使用IMPlatformConstants.SESSION作为键 */
-        return (UserSession) request.getAttribute(IMPlatformConstants.SESSION);
+        Object object = request.getAttribute(IMPlatformConstants.SESSION);
+        if (object == null) {
+            throw new IMException(HttpCode.NO_LOGIN);
+        }
+        return (UserSession) object;
     }
 }

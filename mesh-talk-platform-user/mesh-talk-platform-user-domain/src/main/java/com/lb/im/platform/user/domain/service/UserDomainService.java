@@ -22,4 +22,14 @@ public interface UserDomainService extends IService<User> {
      */
     List<User> getUserListByName(String name);
 
+    /**
+     * 根据id获取用户数据
+     */
+    User getById(Long userId);
+
+    /**
+     * 模糊查询用户
+     */
+    List<User> findUserByName(String name);
+
 }

@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthRuleChainService extends BaseRuleChainService implements RuleChainService {
     private final Logger logger = LoggerFactory.getLogger(AuthRuleChainService.class);
 
-    @Value("${bh.im.rule.authRule.order}")
+    @Value("${mesh.talk.rule.authRule.order}")
     private Integer authRuleOrder;
 
     @Override

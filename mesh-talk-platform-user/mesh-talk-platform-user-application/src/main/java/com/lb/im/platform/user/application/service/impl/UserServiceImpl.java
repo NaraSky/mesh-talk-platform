@@ -1,5 +1,6 @@
 package com.lb.im.platform.user.application.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.lb.im.common.cache.distribute.DistributedCacheService;
 import com.lb.im.common.cache.id.SnowFlakeFactory;
@@ -8,10 +9,14 @@ import com.lb.im.platform.common.exception.IMException;
 import com.lb.im.platform.common.jwt.JwtProperties;
 import com.lb.im.platform.common.model.constants.IMPlatformConstants;
 import com.lb.im.platform.common.model.dto.LoginDTO;
+import com.lb.im.platform.common.model.dto.ModifyPwdDTO;
 import com.lb.im.platform.common.model.dto.RegisterDTO;
 import com.lb.im.platform.common.model.entity.User;
 import com.lb.im.platform.common.model.enums.HttpCode;
 import com.lb.im.platform.common.model.vo.LoginVO;
+import com.lb.im.platform.common.model.vo.OnlineTerminalVO;
+import com.lb.im.platform.common.model.vo.UserVO;
+import com.lb.im.platform.common.session.SessionContext;
 import com.lb.im.platform.common.session.UserSession;
 import com.lb.im.platform.common.utils.BeanUtils;
 import com.lb.im.platform.user.application.service.UserService;
@@ -21,8 +26,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -150,4 +158,93 @@ public class UserServiceImpl implements UserService {
         return vo;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyPassword(ModifyPwdDTO dto) {
+        //获取用户Session
+        UserSession session = SessionContext.getSession();
+        //不从缓存中获取，防止缓存数据不一致
+        User user = userDomainService.getById(session.getUserId());
+        if (user == null){
+            throw new IMException("用户不存在");
+        }
+        if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
+            throw new IMException("旧密码不正确");
+        }
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        userDomainService.saveOrUpdateUser(user);
+        logger.info("用户修改密码，用户id:{},用户名:{},昵称:{}", user.getId(), user.getUserName(), user.getNickName());
+    }
+
+    @Override
+    public User findUserByUserName(String username) {
+        User user = distributedCacheService.queryWithPassThrough(IMPlatformConstants.PLATFORM_REDIS_USER_KEY, username, User.class,  userDomainService::getUserByUserName, IMPlatformConstants.DEFAULT_REDIS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+        if (user == null){
+            throw new IMException(HttpCode.PROGRAM_ERROR, "当前用户不存在");
+        }
+        return user;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void update(UserVO vo) {
+        UserSession session = SessionContext.getSession();
+        if (!session.getUserId().equals(vo.getId())) {
+            throw new IMException(HttpCode.PROGRAM_ERROR, "不允许修改其他用户的信息!");
+        }
+        User user = userDomainService.getById(vo.getId());
+        if (Objects.isNull(user)) {
+            throw new IMException(HttpCode.PROGRAM_ERROR, "用户不存在");
+        }
+        //TODO 如果用户更新了昵称和头像，则更新好友昵称和头像
+        if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
+            //TODO 后续完善
+        }
+        //TODO 群聊中的头像是缩略图，需要更新群聊中的头像
+        if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
+
+        }
+        //更新用户的基本信息
+        if (!StrUtil.isEmpty(vo.getNickName())){
+            user.setNickName(vo.getNickName());
+        }
+        if (vo.getSex() != null){
+            user.setSex(vo.getSex());
+        }
+        if (!StrUtil.isEmpty(vo.getSignature())){
+            user.setSignature(vo.getSignature());
+        }
+        if (!StrUtil.isEmpty(vo.getHeadImage())){
+            user.setHeadImage(vo.getHeadImage());
+        }
+        if (!StrUtil.isEmpty(vo.getHeadImageThumb())){
+            user.setHeadImageThumb(vo.getHeadImageThumb());
+        }
+        userDomainService.saveOrUpdateUser(user);
+    }
+
+    @Override
+    public UserVO findUserById(Long id, boolean constantsOnlineFlag) {
+        User user = userDomainService.getById(id);
+        UserVO vo = BeanUtils.copyProperties(user, UserVO.class);
+        //TODO 设置用户的终端数据，通过IMClient获取
+        if (constantsOnlineFlag){
+
+        }
+        //vo.setOnline();
+        return vo;
+    }
+
+    @Override
+    public List<UserVO> findUserByName(String name) {
+        List<User> userList = userDomainService.findUserByName(name);
+        //TODO 调用IMClient的方法后处理在线状态
+        return null;
+    }
+
+    @Override
+    public List<OnlineTerminalVO> getOnlineTerminals(String userIds) {
+        //TODO 调用IMClient的方法来获取终端数据
+        return null;
+    }
 }
