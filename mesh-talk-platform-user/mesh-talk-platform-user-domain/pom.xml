@@ -26,6 +26,10 @@
             <artifactId>mesh-talk-platform-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.lb</groupId>
+            <artifactId>mesh-talk-sdk-core</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -211,6 +211,12 @@
                 <artifactId>sentinel-datasource-nacos</artifactId>
                 <version>${sentinal.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.lb</groupId>
+                <artifactId>mesh-talk-sdk-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

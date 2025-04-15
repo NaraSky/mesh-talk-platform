@@ -1,9 +1,11 @@
 package com.lb.im.platform.user.application.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.lb.im.common.cache.distribute.DistributedCacheService;
 import com.lb.im.common.cache.id.SnowFlakeFactory;
+import com.lb.im.common.domain.enums.IMDeviceType;
 import com.lb.im.common.domain.jwt.JwtUtils;
 import com.lb.im.platform.common.exception.IMException;
 import com.lb.im.platform.common.jwt.JwtProperties;
@@ -21,6 +23,7 @@ import com.lb.im.platform.common.session.UserSession;
 import com.lb.im.platform.common.utils.BeanUtils;
 import com.lb.im.platform.user.application.service.UserService;
 import com.lb.im.platform.user.domain.service.UserDomainService;
+import com.lb.im.sdk.client.IMClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +31,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import javax.annotation.Resource;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 用户服务实现类，提供用户登录、注册等业务逻辑处理。
@@ -49,6 +52,8 @@ public class UserServiceImpl implements UserService {
     private DistributedCacheService distributedCacheService;
     @Autowired
     private JwtProperties jwtProperties;
+    @Autowired
+    private IMClient imClient;
 
     /**
      * 用户登录验证，验证成功后生成访问令牌和刷新令牌。
@@ -132,6 +137,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 刷新访问令牌
+     *
      * @param refreshToken 用户提供的刷新令牌
      * @return 包含新访问令牌和刷新令牌的登录信息对象
      * @throws IMException 当刷新令牌无效或已过期时抛出
@@ -165,7 +171,7 @@ public class UserServiceImpl implements UserService {
         UserSession session = SessionContext.getSession();
         //不从缓存中获取，防止缓存数据不一致
         User user = userDomainService.getById(session.getUserId());
-        if (user == null){
+        if (user == null) {
             throw new IMException("用户不存在");
         }
         if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
@@ -178,8 +184,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findUserByUserName(String username) {
-        User user = distributedCacheService.queryWithPassThrough(IMPlatformConstants.PLATFORM_REDIS_USER_KEY, username, User.class,  userDomainService::getUserByUserName, IMPlatformConstants.DEFAULT_REDIS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
-        if (user == null){
+        User user = distributedCacheService.queryWithPassThrough(IMPlatformConstants.PLATFORM_REDIS_USER_KEY, username, User.class, userDomainService::getUserByUserName, IMPlatformConstants.DEFAULT_REDIS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+        if (user == null) {
             throw new IMException(HttpCode.PROGRAM_ERROR, "当前用户不存在");
         }
         return user;
@@ -205,19 +211,19 @@ public class UserServiceImpl implements UserService {
 
         }
         //更新用户的基本信息
-        if (!StrUtil.isEmpty(vo.getNickName())){
+        if (!StrUtil.isEmpty(vo.getNickName())) {
             user.setNickName(vo.getNickName());
         }
-        if (vo.getSex() != null){
+        if (vo.getSex() != null) {
             user.setSex(vo.getSex());
         }
-        if (!StrUtil.isEmpty(vo.getSignature())){
+        if (!StrUtil.isEmpty(vo.getSignature())) {
             user.setSignature(vo.getSignature());
         }
-        if (!StrUtil.isEmpty(vo.getHeadImage())){
+        if (!StrUtil.isEmpty(vo.getHeadImage())) {
             user.setHeadImage(vo.getHeadImage());
         }
-        if (!StrUtil.isEmpty(vo.getHeadImageThumb())){
+        if (!StrUtil.isEmpty(vo.getHeadImageThumb())) {
             user.setHeadImageThumb(vo.getHeadImageThumb());
         }
         userDomainService.saveOrUpdateUser(user);
@@ -225,13 +231,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserVO findUserById(Long id, boolean constantsOnlineFlag) {
-        User user = userDomainService.getById(id);
-        UserVO vo = BeanUtils.copyProperties(user, UserVO.class);
-        //TODO 设置用户的终端数据，通过IMClient获取
-        if (constantsOnlineFlag){
-
+        User user = distributedCacheService.queryWithPassThrough(IMPlatformConstants.PLATFORM_REDIS_USER_KEY, id, User.class, userDomainService::getById, IMPlatformConstants.DEFAULT_REDIS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+        if (user == null) {
+            throw new IMException(HttpCode.PROGRAM_ERROR, "当前用户不存在");
         }
-        //vo.setOnline();
+        UserVO vo = BeanUtils.copyProperties(user, UserVO.class);
+        if (constantsOnlineFlag) {
+            vo.setOnline(imClient.isOnline(id));
+        }
         return vo;
     }
 
@@ -239,12 +246,39 @@ public class UserServiceImpl implements UserService {
     public List<UserVO> findUserByName(String name) {
         List<User> userList = userDomainService.findUserByName(name);
         //TODO 调用IMClient的方法后处理在线状态
-        return null;
+        if (CollectionUtil.isEmpty(userList)) {
+            return Collections.emptyList();
+        }
+        List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
+        List<Long> onlineUserIds = imClient.getOnlineUserList(userIds);
+        return userList.stream().map(u -> {
+            UserVO vo = BeanUtils.copyProperties(u, UserVO.class);
+            vo.setOnline(onlineUserIds.contains(u.getId()));
+            return vo;
+        }).collect(Collectors.toList());
     }
 
+    /**
+     * 根据用户ID列表获取在线终端信息。
+     */
     @Override
     public List<OnlineTerminalVO> getOnlineTerminals(String userIds) {
-        //TODO 调用IMClient的方法来获取终端数据
-        return null;
+        List<Long> userIdList = Arrays.stream(userIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
+
+        /**
+         * 查询指定用户列表的在线终端信息。
+         */
+        Map<Long, List<IMDeviceType>> terminalMap = imClient.getOnlineTerminal(userIdList);
+
+        /**
+         * 将终端类型信息转换为视图对象。
+         */
+        List<OnlineTerminalVO> vos = new LinkedList<>();
+        terminalMap.forEach((userId, types) -> {
+            List<Integer> terminals = types.stream().map(IMDeviceType::getCode).collect(Collectors.toList());
+            vos.add(new OnlineTerminalVO(userId, terminals));
+        });
+        return vos;
     }
+
 }
