@@ -121,4 +121,33 @@ public class UserServiceImpl implements UserService {
         userDomainService.saveOrUpdateUser(user);
         logger.info("注册用户，用户id:{},用户名:{},昵称:{}", user.getId(), dto.getUserName(), dto.getNickName());
     }
+
+    /**
+     * 刷新访问令牌
+     * @param refreshToken 用户提供的刷新令牌
+     * @return 包含新访问令牌和刷新令牌的登录信息对象
+     * @throws IMException 当刷新令牌无效或已过期时抛出
+     */
+    @Override
+    public LoginVO refreshToken(String refreshToken) throws IMException {
+        // 验证 refreshToken 的签名和有效性
+        if (!JwtUtils.checkSign(refreshToken, jwtProperties.getRefreshTokenSecret())) {
+            throw new IMException("refreshToken无效或已过期");
+        }
+
+        String strJson = JwtUtils.getInfo(refreshToken);
+        Long userId = JwtUtils.getUserId(refreshToken);
+
+        // 生成新的访问令牌和刷新令牌
+        String accessToken = JwtUtils.sign(userId, strJson, jwtProperties.getAccessTokenExpireIn(), jwtProperties.getAccessTokenSecret());
+        String newRefreshToken = JwtUtils.sign(userId, strJson, jwtProperties.getRefreshTokenExpireIn(), jwtProperties.getRefreshTokenSecret());
+
+        LoginVO vo = new LoginVO();
+        vo.setAccessToken(accessToken);
+        vo.setAccessTokenExpiresIn(jwtProperties.getAccessTokenExpireIn());
+        vo.setRefreshToken(newRefreshToken);
+        vo.setRefreshTokenExpiresIn(jwtProperties.getRefreshTokenExpireIn());
+        return vo;
+    }
+
 }

@@ -15,4 +15,9 @@ public interface UserService {
      * 用户注册
      */
     void register(RegisterDTO dto);
+
+    /**
+     * 用refreshToken换取新 token
+     */
+    LoginVO refreshToken(String refreshToken) throws IMException;
 }

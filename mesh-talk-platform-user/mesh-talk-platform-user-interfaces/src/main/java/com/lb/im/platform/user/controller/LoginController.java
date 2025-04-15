@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,6 +34,13 @@ public class LoginController {
     public ResponseMessage<String> register(@Valid @RequestBody RegisterDTO dto) {
         userService.register(dto);
         return ResponseMessageFactory.getSuccessResponseMessage();
+    }
+
+    @PutMapping("/refreshToken")
+    @ApiOperation(value = "刷新token", notes = "用refreshtoken换取新的token")
+    public ResponseMessage<LoginVO> refreshToken(@RequestBody String refreshToken) {
+        LoginVO vo = userService.refreshToken(refreshToken);
+        return ResponseMessageFactory.getSuccessResponseMessage(vo);
     }
 
 }
