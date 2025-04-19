@@ -1,5 +1,7 @@
 package com.lb.im.platform.dubbo.friend;
 
+import com.lb.im.platform.common.model.entity.Friend;
+
 import java.util.List;
 
 /**
@@ -25,4 +27,9 @@ public interface FriendDubboService {
      * @return 好友ID列表
      */
     List<Long> getFriendIdList(Long userId);
+
+    /**
+     * 根据用户id获取好友列表
+     */
+    List<Friend> getFriendByUserId(Long userId);
 }

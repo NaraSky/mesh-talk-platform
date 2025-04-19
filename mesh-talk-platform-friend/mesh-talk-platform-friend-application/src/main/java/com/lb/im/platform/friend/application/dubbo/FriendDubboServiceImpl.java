@@ -1,6 +1,7 @@
 package com.lb.im.platform.friend.application.dubbo;
 
 import com.lb.im.platform.common.model.constants.IMPlatformConstants;
+import com.lb.im.platform.common.model.entity.Friend;
 import com.lb.im.platform.dubbo.friend.FriendDubboService;
 import com.lb.im.platform.friend.application.service.FriendService;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -48,5 +49,10 @@ public class FriendDubboServiceImpl implements FriendDubboService {
     @Override
     public List<Long> getFriendIdList(Long userId) {
         return friendService.getFriendIdList(userId);
+    }
+
+    @Override
+    public List<Friend> getFriendByUserId(Long userId) {
+        return friendService.getFriendByUserId(userId);
     }
 }

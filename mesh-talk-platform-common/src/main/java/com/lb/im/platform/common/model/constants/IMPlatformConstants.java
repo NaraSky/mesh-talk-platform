@@ -56,6 +56,26 @@ public class IMPlatformConstants {
     public static final String PLATFORM_REDIS_FRIEND_SET_KEY = "platform:friend:set:";
 
     /**
+     * 群组列表
+     */
+    public static final String PLATFORM_REDIS_GROUP_LIST_KEY = "platform:group:list:";
+
+    /**
+     * 单个群组
+     */
+    public static final String PLATFORM_REDIS_GROUP_SINGLE_KEY = "platform:group:single:";
+
+    /**
+     * 单个群组vo
+     */
+    public static final String PLATFORM_REDIS_GROUP_VO_SINGLE_KEY = "platform:group:vo:single:";
+
+    /**
+     * 群成员列表
+     */
+    public static final String PLATFORM_REDIS_MEMBER_VO_LIST_KEY = "platform:member:vo:list:";
+
+    /**
      * Session数据
      * 用户会话数据的键名
      */

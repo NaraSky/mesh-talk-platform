@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -125,6 +126,7 @@ public class FriendDomainServiceImpl extends ServiceImpl<FriendRepository, Frien
             friend.setUserId(friendCommand.getUserId());
             friend.setFriendId(friendCommand.getFriendId());
             friend.setFriendHeadImage(headImg);
+            friend.setCreatedTime(new Date());
             friend.setFriendNickName(nickName);
             // 保存到数据库
             result = this.save(friend);

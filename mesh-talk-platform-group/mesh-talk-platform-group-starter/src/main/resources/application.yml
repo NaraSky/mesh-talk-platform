@@ -1,0 +1,144 @@
+#这是配置服务的端口
+server:
+  port: 10004
+#配置项目的数据源
+spring:
+  application:
+    name: bh-im-platform-group
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://117.72.33.162:3306/bh_im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+  redis:
+    database: 0
+    host: 117.72.33.162
+    port: 6379
+    password:
+    timeout: 30000
+    lettuce:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: 5000
+    address: redis://117.72.33.162:6379
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  cloud:
+    nacos:
+      config:
+        server-addr: 117.72.33.162:8848
+        file-extension: json
+        namespace: bh-im-config
+        access-key: nacos
+        secret-key: nacos
+        group: BH-IM-GROUP
+      discovery:
+        server-addr: 117.72.33.162:8848
+        enabled: true
+        namespace: bh-im-config
+        access-key: nacos
+        secret-key: nacos
+        group: BH-IM-GROUP
+
+dubbo:
+  application:
+    name: ${spring.application.name}
+  scan:
+    base-packages: com.lb.im
+  protocol:
+    name: dubbo
+    port: 20881
+  registry:
+    address: nacos://117.72.33.162:8848?register-consumer-url=true
+    register-mode: instance
+
+mybatis-plus:
+  configuration:
+    # 是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN（下划线命名） 到经典 Java 属性名 aColumn（驼峰命名） 的类似映射
+    map-underscore-to-camel-case: false
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # mapper
+  mapper-locations:
+    # *.xml的具体路径
+    - classpath*:mapper/*.xml
+minio:
+  endpoint: http://117.72.33.162:9001 #内网地址
+  public: http://117.72.33.162:9001  #外网访问地址
+  accessKey: binghe
+  secretKey: binghe123
+  bucketName: bh-im
+  imagePath: image
+  filePath: file
+
+webrtc:
+  iceServers:
+    - urls: stun:stun.l.google.com:19302
+
+jwt:
+  accessToken:
+    expireIn: 1800 #半个小时
+    secret: binghe123
+  refreshToken:
+    expireIn: 604800 #7天
+    secret: binghe123456
+
+rocketmq:
+  name-server: 117.72.33.162:9876
+  producer:
+    group: im-plate-group
+
+local:
+  cache:
+    type: guava
+
+distribute:
+  cache:
+    type: redis
+  lock:
+    type: redisson
+
+redis:
+  arrange:
+    type: single # single or cluster
+
+message:
+  mq:
+    event:
+      type: rocketmq
+    type: rocketmq
+
+#logging:
+#  config: classpath:logback-prod.xml
+
+
+mesh:
+  talk:
+    rule:
+      authRule:
+        order: 10
+      xssRule:
+        enabled: true
+        order: 0
+      ipRule:
+        enabled: true
+        order: 1
+        windowsSize: 50
+        windowPeriod: 1000
+      pathRule:
+        enabled: true
+        order: 1
+        windowsSize: 50
+        windowPeriod: 1000
