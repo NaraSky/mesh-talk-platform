@@ -175,6 +175,16 @@ public class IMPlatformConstants {
     public static final String TOPIC_USER_TO_GROUP_GROUP = "topic_user_to_group_group";
 
     /**
+     * 保存单聊消息分组
+     */
+    public static final String TOPIC_PRIVATE_TX_MESSAGE_GROUP = "topic_private_message_save_group";
+
+    /**
+     * 保存单聊消息Topic
+     */
+    public static final String TOPIC_PRIVATE_TX_MESSAGE = "topic_private_message_save";
+
+    /**
      * Cola订阅事件
      */
     public static final String TOPIC_EVENT_COLA = "topic_event_cola";
