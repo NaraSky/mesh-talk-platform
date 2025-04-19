@@ -18,6 +18,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class IMPlatformUserStarter {
 
     public static void main(String[] args) {
+        System.setProperty("user.home", "C:\\soft\\code\\bh-im-platform\\bh-im-platform-user");
         SpringApplication.run(IMPlatformUserStarter.class, args);
     }
 }

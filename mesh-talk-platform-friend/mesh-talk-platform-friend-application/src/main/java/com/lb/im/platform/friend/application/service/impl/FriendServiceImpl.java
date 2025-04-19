@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * 好友应用服务实现类
  * 实现了好友模块对外提供的服务方法
- * 
+ * <p>
  * 技术点：
  * 1. 基于DDD的应用层设计，协调领域层和基础设施层
  * 2. 使用Redis进行分布式缓存，实现数据快速访问
@@ -107,7 +107,7 @@ public class FriendServiceImpl implements FriendService {
         // 构建Redis键
         String redisKey = IMPlatformConstants.PLATFORM_REDIS_FRIEND_SET_KEY.concat(String.valueOf(userId1));
         // 查询Redis缓存（使用Set数据结构存储好友关系）
-        Boolean result = distributedCacheService.isMemberSet(redisKey, userId2);
+        Boolean result = distributedCacheService.isMemberSet(redisKey, String.valueOf(userId2));
         // 如果缓存命中且为true，直接返回结果
         if (BooleanUtil.isTrue(result)) {
             return result;
@@ -201,9 +201,9 @@ public class FriendServiceImpl implements FriendService {
         // 通过Dubbo调用获取好友用户信息
         User user = userDubboService.getUserById(friendId);
         // 建立好友关系（用户->好友）
-        domainService.bindFriend(friendCommand, 
-                                user == null ? "" : user.getHeadImage(), 
-                                user == null ? "" : user.getNickName());
+        domainService.bindFriend(friendCommand,
+                                 user == null ? "" : user.getHeadImage(),
+                                 user == null ? "" : user.getNickName());
 
         // 第二步：建立好友->用户的关系（双向好友关系）
         // 创建反向好友命令对象
@@ -211,9 +211,9 @@ public class FriendServiceImpl implements FriendService {
         // 通过Dubbo调用获取当前用户信息
         user = userDubboService.getUserById(userId);
         // 建立好友关系（好友->用户）
-        domainService.bindFriend(friendCommand, 
-                                user == null ? "" : user.getHeadImage(), 
-                                user == null ? "" : user.getNickName());
+        domainService.bindFriend(friendCommand,
+                                 user == null ? "" : user.getHeadImage(),
+                                 user == null ? "" : user.getNickName());
     }
 
     /**
