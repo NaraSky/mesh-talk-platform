@@ -215,7 +215,7 @@ public class GroupMessageServiceImpl implements GroupMessageService {
         // 获取当前用户会话
         UserSession session = SessionContext.getSession();
         // 获取用户所在的所有群组ID
-        List<Long> ids = groupDubboService.getUserIdsByGroupId(session.getUserId());
+        List<Long> ids = groupDubboService.getGroupIdsByUserId(session.getUserId());
         if (CollectionUtil.isEmpty(ids)) {
             return Collections.emptyList();
         }

@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lb.im.platform.common.exception.IMException;
 import com.lb.im.platform.common.model.entity.GroupMember;
 import com.lb.im.platform.common.model.enums.HttpCode;
+import com.lb.im.platform.common.model.params.GroupParams;
+import com.lb.im.platform.common.model.vo.GroupMemberSimpleVO;
 import com.lb.im.platform.common.model.vo.GroupMemberVO;
 import com.lb.im.platform.group.domain.repository.GroupMemberRepository;
 import com.lb.im.platform.group.domain.service.GroupMemberDomainService;
@@ -99,6 +101,24 @@ public class GroupMemberDomainServiceImpl extends ServiceImpl<GroupMemberReposit
             throw new IMException(HttpCode.PARAMS_ERROR);
         }
         return baseMapper.getUserIdsByGroupId(groupId);
+    }
+
+    @Override
+    public List<Long> getGroupIdsByUserId(Long userId) {
+        if (userId == null) {
+            throw new IMException(HttpCode.PARAMS_ERROR);
+        }
+        return baseMapper.getGroupIdsByUserId(userId);
+    }
+
+    @Override
+    public GroupMemberSimpleVO getGroupMemberSimpleVO(GroupParams groupParams) {
+        return baseMapper.getGroupMemberSimpleVO(groupParams.getGroupId(), groupParams.getUserId());
+    }
+
+    @Override
+    public List<GroupMemberSimpleVO> getGroupMemberSimpleVOList(Long userId) {
+        return baseMapper.getGroupMemberSimpleVOList(userId);
     }
 
     @Override

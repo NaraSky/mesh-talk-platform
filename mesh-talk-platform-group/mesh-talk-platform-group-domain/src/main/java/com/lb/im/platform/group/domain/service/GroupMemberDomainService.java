@@ -2,6 +2,8 @@ package com.lb.im.platform.group.domain.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lb.im.platform.common.model.entity.GroupMember;
+import com.lb.im.platform.common.model.params.GroupParams;
+import com.lb.im.platform.common.model.vo.GroupMemberSimpleVO;
 import com.lb.im.platform.common.model.vo.GroupMemberVO;
 
 import java.util.List;
@@ -52,6 +54,21 @@ public interface GroupMemberDomainService extends IService<GroupMember> {
      * 获取群成员id列表
      */
     List<Long> getUserIdsByGroupId(Long groupId);
+
+    /**
+     * 根据用户id获取群组id列表
+     */
+    List<Long> getGroupIdsByUserId(Long userId);
+
+    /**
+     * 获取成员
+     */
+    GroupMemberSimpleVO getGroupMemberSimpleVO(GroupParams groupParams);
+
+    /**
+     * 根据用户id获取在各个群组中的信息
+     */
+    List<GroupMemberSimpleVO> getGroupMemberSimpleVOList(Long userId);
 
     /**
      * 更新某个用户在所有群里的头像
