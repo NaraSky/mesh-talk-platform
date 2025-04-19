@@ -1,0 +1,54 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor 用户 as user
+participant 消息微服务 as message
+database 消息数据库 as db
+participant 即时通讯SDK as sdk
+queue 消息中间件 as mq
+participant 即时通讯后端服务 as imBackend
+actor 好友 as friend
+
+activate message
+
+user -> message : 触发消息撤回
+message -> db : 查询单聊消息
+activate db
+db --> message : 返回单聊消息
+message -> message : 验证消息是否存在
+message -> message : 验证消息是否由当前用户发送
+message -> message : 验证消息是否可以撤回
+message -> db : 更新消息状态为已撤回
+note right of message
+以下操作为异步操作
+end note
+alt 向好友终端发送撤回消息
+message -> message: 构建发送给好友的撤回单聊消息数据模型
+message -> sdk : 发送撤回单聊消息
+activate sdk
+sdk -> mq : 发送撤回单聊消息
+deactivate sdk
+activate mq
+imBackend -> mq : 监听撤回单聊消息
+activate imBackend
+mq --> imBackend : 接收撤回单聊消息
+deactivate mq
+imBackend -> friend : 推送撤回单聊消息
+deactivate imBackend
+end
+
+alt 向自己的其他终端发送撤回消息
+message -> message: 构建发送给自己其他终端的撤回单聊消息数据模型
+message -> sdk : 发送撤回单聊消息
+activate sdk
+sdk -> mq : 发送撤回单聊消息
+deactivate sdk
+activate mq
+imBackend -> mq : 监听撤回单聊消息
+activate imBackend
+mq --> imBackend : 接收撤回单聊消息
+deactivate mq
+imBackend -> user : 推送撤回单聊消息
+deactivate imBackend
+end
+
+@enduml

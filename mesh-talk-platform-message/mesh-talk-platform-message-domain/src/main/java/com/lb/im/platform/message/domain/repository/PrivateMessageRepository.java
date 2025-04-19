@@ -27,6 +27,12 @@ public interface PrivateMessageRepository extends BaseMapper<PrivateMessage> {
     @Select("select 1 from im_private_message where id = #{messageId} limit 1")
     Integer checkExists(@Param("messageId") Long messageId);
 
+    @Select({"<script> " +
+            "select id as id, send_id as sendId, recv_id as recvId, content as content, type as type, status as status, send_time as sendTime " +
+            "from im_private_message where id = #{messageId} " +
+            "</script>"})
+    PrivateMessageVO getPrivateMessageById(@Param("messageId") Long messageId);
+
     /**
      * 获取指定用户未读的私聊消息列表
      * 按指定好友ID列表过滤消息发送者
@@ -109,4 +115,10 @@ public interface PrivateMessageRepository extends BaseMapper<PrivateMessage> {
             "and status  <![CDATA[ <> ]]> 2 order by id desc limit #{stIdx}, #{size} " +
             "</script>"})
     List<PrivateMessageVO> loadMessageByUserIdAndFriendId(@Param("userId") Long userId, @Param("friendId") Long friendId, @Param("stIdx") long stIdx, @Param("size") long size);
+
+    @Update("update im_private_message set status = #{status} where send_id = #{sendId} and recv_id = #{recvId} and status = 1 ")
+    int updateMessageStatus(@Param("status") Integer status, @Param("sendId") Long sendId, @Param("recvId") Long recvId);
+
+    @Update("update im_private_message set status = #{status} where id = #{messageId}")
+    int updateMessageStatusById(@Param("status") Integer status, @Param("messageId") Long messageId);
 }
