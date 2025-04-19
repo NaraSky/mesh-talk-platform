@@ -160,9 +160,19 @@ public class IMPlatformConstants {
     public static final String TOPIC_USER_TO_FRIEND = "topic_user_to_friend";
 
     /**
+     * 更新用户信息异步更新群组表数据
+     */
+    public static final String TOPIC_USER_TO_GROUP = "topic_user_to_group";
+
+    /**
      * 消费者分组
      */
     public static final String TOPIC_USER_TO_FRIEND_GROUP = "topic_user_to_friend_group";
+
+    /**
+     * 消费者分组
+     */
+    public static final String TOPIC_USER_TO_GROUP_GROUP = "topic_user_to_group_group";
 
     /**
      * Cola订阅事件

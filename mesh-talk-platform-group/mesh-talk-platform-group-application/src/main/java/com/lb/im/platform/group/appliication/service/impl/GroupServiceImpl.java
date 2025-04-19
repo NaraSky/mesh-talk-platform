@@ -315,4 +315,9 @@ public class GroupServiceImpl implements GroupService {
     private String getTopicEvent(){
         return IMPlatformConstants.EVENT_PUBLISH_TYPE_ROCKETMQ.equals(eventType) ? IMPlatformConstants.TOPIC_EVENT_ROCKETMQ_GROUP : IMPlatformConstants.TOPIC_EVENT_COLA;
     }
+
+    @Override
+    public boolean updateHeadImgByUserId(String headImg, Long userId) {
+        return groupMemberDomainService.updateHeadImgByUserId(headImg, userId);
+    }
 }

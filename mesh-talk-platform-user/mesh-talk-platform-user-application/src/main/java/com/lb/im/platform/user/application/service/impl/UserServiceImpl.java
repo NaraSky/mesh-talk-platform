@@ -17,6 +17,7 @@ import com.lb.im.platform.common.model.dto.RegisterDTO;
 import com.lb.im.platform.common.model.entity.User;
 import com.lb.im.platform.common.model.enums.HttpCode;
 import com.lb.im.platform.common.model.event.User2FriendEvent;
+import com.lb.im.platform.common.model.event.User2GroupEvent;
 import com.lb.im.platform.common.model.vo.LoginVO;
 import com.lb.im.platform.common.model.vo.OnlineTerminalVO;
 import com.lb.im.platform.common.model.vo.UserVO;
@@ -226,13 +227,13 @@ public class UserServiceImpl implements UserService {
         if (!result) return;
         //TODO 如果用户更新了昵称和头像，则更新好友昵称和头像
         if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-            //TODO 后续完善
             User2FriendEvent user2FriendEvent = new User2FriendEvent(session.getUserId(), vo.getNickName(), vo.getHeadImageThumb(), IMPlatformConstants.TOPIC_USER_TO_FRIEND);
             messageSenderService.send(user2FriendEvent);
         }
         //TODO 群聊中的头像是缩略图，需要更新群聊中的头像
         if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-
+            User2GroupEvent user2GroupEvent = new User2GroupEvent(session.getUserId(), vo.getHeadImageThumb(), IMPlatformConstants.TOPIC_USER_TO_GROUP);
+            messageSenderService.send(user2GroupEvent);
         }
     }
 

@@ -100,4 +100,9 @@ public class GroupMemberDomainServiceImpl extends ServiceImpl<GroupMemberReposit
         }
         return baseMapper.getUserIdsByGroupId(groupId);
     }
+
+    @Override
+    public boolean updateHeadImgByUserId(String headImg, Long userId) {
+        return baseMapper.updateHeadImgByUserId(headImg, userId) > 0;
+    }
 }

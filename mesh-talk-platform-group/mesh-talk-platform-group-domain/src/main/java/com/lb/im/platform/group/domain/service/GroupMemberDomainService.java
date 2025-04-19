@@ -53,4 +53,9 @@ public interface GroupMemberDomainService extends IService<GroupMember> {
      */
     List<Long> getUserIdsByGroupId(Long groupId);
 
+    /**
+     * 更新某个用户在所有群里的头像
+     */
+    boolean updateHeadImgByUserId(String headImg, Long userId);
+
 }

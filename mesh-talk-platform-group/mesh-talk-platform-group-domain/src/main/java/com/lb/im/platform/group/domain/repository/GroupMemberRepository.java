@@ -5,6 +5,7 @@ import com.lb.im.platform.common.model.entity.GroupMember;
 import com.lb.im.platform.common.model.vo.GroupMemberVO;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -16,4 +17,7 @@ public interface GroupMemberRepository extends BaseMapper<GroupMember> {
 
     @Select("select user_id from im_group_member where group_id = #{groupId} and quit = 0 ")
     List<Long> getUserIdsByGroupId(@Param("groupId") Long groupId);
+
+    @Update("update im_group_member set head_image = #{headImg} where user_id = #{userId}")
+    int updateHeadImgByUserId(@Param("headImg") String headImg, @Param("userId") Long userId);
 }

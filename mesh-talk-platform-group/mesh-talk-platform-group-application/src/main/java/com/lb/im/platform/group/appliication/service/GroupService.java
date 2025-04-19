@@ -28,4 +28,9 @@ public interface GroupService {
     GroupVO findById(Long groupId);
 
     List<GroupMemberVO> findGroupMembers(Long groupId);
+
+    /**
+     * 更新某个用户在所有群的头像
+     */
+    boolean updateHeadImgByUserId(String headImg, Long userId);
 }
