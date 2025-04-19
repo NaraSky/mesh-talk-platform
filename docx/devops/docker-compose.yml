@@ -1,267 +1,235 @@
-# 指定 Docker Compose 文件版本为 3.2
 version: '3.2'
 
-# 定义网络配置
 networks:
-  # 创建一个名为 zhiyu-network 的网络
-  zhiyu-network:
-    # 使用 bridge 驱动，容器之间通过桥接网络通信
+  binghe-network:
     driver: bridge
 
-# 定义持久化存储卷
 volumes:
-  # 定义一个名为 prometheus_data 的卷，用于存储 Prometheus 数据
   prometheus_data: {}
-
-# 定义服务配置
 services:
-  # MySQL 服务配置
   mysql:
-    # 使用 MySQL 5.7 版本的官方镜像
-    image: mysql:8.0.32
-    # 容器名称为 mysql
+    image: mysql:5.7
     container_name: mysql
-    # 数据卷挂载配置
     volumes:
-      # 将本地 ./data/db_data 目录挂载到容器的 /var/lib/mysql，用于存储数据库数据
       - ./data/db_data:/var/lib/mysql
-      # 将本地 ./config/mysql/init 目录挂载到容器的初始化脚本目录
       - ./config/mysql/init:/docker-entrypoint-initdb.d/
-    # MySQL 启动时的自定义命令参数
     command: [
-      # 设置字符集为 utf8mb4
       '--character-set-server=utf8mb4',
-      # 设置排序规则为 utf8mb4_unicode_ci
       '--collation-server=utf8mb4_unicode_ci',
-      # 设置时区为东八区（+8:00）
       '--default-time-zone=+8:00'
     ]
-    # 环境变量配置
     environment:
-      # 设置 MySQL root 用户密码为 root
       MYSQL_ROOT_PASSWORD: root
-      # 创建默认数据库 mesh_talk_im
-      MYSQL_DATABASE: mesh_talk_im
-      # 创建普通用户 zhiyu
-      MYSQL_USER: zhiyu
-      # 设置普通用户密码为 zhiyu
-      MYSQL_PASSWORD: zhiyu
-    # 端口映射：宿主机的 13306 映射到容器的 3306
+      MYSQL_DATABASE: bh_im
+      MYSQL_USER: binghe
+      MYSQL_PASSWORD: binghe
     ports:
-      - 13306:3306
-    # 将服务加入 zhiyu-network 网络
+      - 3306:3306
     networks:
-      - zhiyu-network
-
-  # Redis 服务配置
-  redis:
-    # 容器名称为 redis
-    container_name: redis
-    # 使用 redislabs/redismod 的最新版本镜像
-    image: redislabs/redismod:latest
-    # 端口映射：宿主机的 16379 映射到容器的 6379
+      - binghe-network
+  mysqld-exporter:
+    image: prom/mysqld-exporter
+    container_name: mysqld-exporter
     ports:
-      - 16379:6379
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-
-  # Redis Commander 服务配置（Redis 可视化管理工具）
-  redis-commander:
-    # 容器名称为 redis-commander
-    container_name: redis-commander
-    # 设置容器主机名为 redis-commander
-    hostname: redis-commander
-    # 使用 rediscommander/redis-commander 的最新版本镜像
-    image: rediscommander/redis-commander:latest
-    # 环境变量配置
+      - 9104:9104
     environment:
-      # 配置 Redis 连接，指向 redis 服务，端口为 6379
-      - REDIS_HOSTS=local:redis:6379
-    # 端口映射：宿主机的 8082 映射到容器的 8081
-    ports:
-      - 8082:8081
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-
-  # RocketMQ NameServer 服务配置（消息队列命名服务）
-  rmqnamesrv:
-    # 使用 apacherocketmq/rocketmq 4.5.0 版本镜像
-    image: apacherocketmq/rocketmq:4.5.0
-    # 容器名称为 rmqnamesrv
-    container_name: rmqnamesrv
-    # 端口映射：宿主机的 9876 映射到容器的 9876
-    ports:
-      - 9876:9876
-    # 数据卷挂载配置
-    volumes:
-      # 将本地日志目录挂载到容器
-      - ./data/rocketmq/logs:/home/rocketmq/logs
-      # 将本地存储目录挂载到容器
-      - ./data/rocketmq/store:/home/rocketmq/store
-    # 启动命令：运行 NameServer
-    command: sh mqnamesrv
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-
-  # RocketMQ Broker 服务配置（消息队列代理服务）
-  rmqbroker:
-    # 使用 apacherocketmq/rocketmq 4.5.0 版本镜像
-    image: apacherocketmq/rocketmq:4.5.0
-    # 容器名称为 rmqbroker
-    container_name: rmqbroker
-    # 端口映射
-    ports:
-      # Fast Remoting 端口映射：宿主机的 10909 映射到容器的 10909
-      - 10909:10909
-      # 主端口映射：宿主机的 10911 映射到容器的 10911
-      - 10911:10911
-      # VIP 通道端口映射：宿主机的 10912 映射到容器的 10912
-      - 10912:10912
-    # 数据卷挂载配置
-    volumes:
-      # 将本地日志目录挂载到容器
-      - ./data/rocketmq/logs:/home/rocketmq/logs
-      # 将本地存储目录挂载到容器
-      - ./data/rocketmq/store:/home/rocketmq/store
-      # 将本地配置文件挂载到容器
-      - ./config/rocketmq/broker.conf:/home/rocketmq/rocketmq-4.5.0/conf/broker.conf
-    # 启动命令：运行 Broker，指定 NameServer 地址和配置文件
-    command: sh mqbroker -n rmqnamesrv:9876 -c ../conf/broker.conf
-    # 依赖 rmqnamesrv 服务，必须在 NameServer 启动后运行
-    depends_on:
-      - rmqnamesrv
-    # 环境变量配置
-    environment:
-      # 设置 Java 环境变量，指定 JRE 路径
-      - JAVA_HOME=/usr/lib/jvm/jre
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-
-  # Elasticsearch 服务配置（日志搜索与分析引擎）
-  elasticsearch:
-    # 使用 elasticsearch 7.14.2 版本镜像
-    image: elasticsearch:7.14.2
-    # 容器名称为 elasticsearch
-    container_name: elasticsearch
-    # 数据卷挂载配置
-    volumes:
-      # 将本地配置文件挂载到容器
-      - ./config/elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    # 端口映射
-    ports:
-      # HTTP 接口端口映射：宿主机的 9200 映射到容器的 9200
-      - "9200:9200"
-      # 节点间通信端口映射：宿主机的 9300 映射到容器的 9300
-      - "9300:9300"
-    # 环境变量配置
-    environment:
-      # 设置 JVM 堆内存大小为 256MB
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      # 配置为单节点模式
-      discovery.type: single-node
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-
-  # Logstash 服务配置（日志收集与处理工具）
-  logstash:
-    # 使用 logstash 7.14.2 版本镜像
-    image: logstash:7.14.2
-    # 容器名称为 logstash
-    container_name: logstash
-    # 数据卷挂载配置
-    volumes:
-      # 将本地配置文件挂载到容器
-      - ./config/elk/logstash.yml:/usr/share/logstash/config/logstash.yml
-      # 将本地管道配置挂载到容器
-      - ./config/elk/pipeline:/usr/share/logstash/pipeline
-    # 端口映射
-    ports:
-      # Beats 输入端口映射：宿主机的 5044 映射到容器的 5044
-      - "5044:5044"
-      # TCP 输入端口映射：宿主机的 5000 映射到容器的 5000（TCP）
-      - "5000:5000/tcp"
-      # UDP 输入端口映射：宿主机的 5000 映射到容器的 5000（UDP）
-      - "5000:5000/udp"
-      # 监控端口映射：宿主机的 9600 映射到容器的 9600
-      - "9600:9600"
-    # 环境变量配置
-    environment:
-      # 设置 JVM 堆内存大小为 256MB
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-    # 依赖 elasticsearch 服务，必须在 Elasticsearch 启动后运行
-    depends_on:
-      - elasticsearch
-
-  # Kibana 服务配置（日志可视化工具）
-  kibana:
-    # 使用 kibana 7.14.2 版本镜像
-    image: kibana:7.14.2
-    # 容器名称为 kibana
-    container_name: kibana
-    # 数据卷挂载配置
-    volumes:
-      # 将本地配置文件挂载到容器
-      - ./config/elk/kibana.yml:/usr/share/kibana/config/kibana.yml
-    # 端口映射：宿主机的 5601 映射到容器的 5601
-    ports:
-      - "5601:5601"
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-    # 依赖 elasticsearch 服务，必须在 Elasticsearch 启动后运行
-    depends_on:
-      - elasticsearch
-
-  # Sentinel Dashboard 服务配置（流量控制与熔断降级工具）
-  sentinel:
-    # 使用 bladex/sentinel-dashboard 镜像
-    image: bladex/sentinel-dashboard
-    # 容器名称为 sentinel
-    container_name: sentinel
-    # 端口映射：宿主机的 8858 映射到容器的 8858
-    ports:
-      - 8858:8858
-    # 将服务加入 zhiyu-network 网络
-    networks:
-      - zhiyu-network
-
-  # Nacos 服务配置（服务注册与配置中心）
-  nacos:
-    # 使用 nacos/nacos-server 2.0.3 版本镜像
-    image: nacos/nacos-server:2.0.3
-    # 容器名称为 nacos-standalone-mysql
-    container_name: nacos-standalone-mysql
-    # 从指定文件加载环境变量
-    env_file:
-      # 使用本地 nacos-standlone-mysql.env 文件配置环境变量
-      - ./config/nacos/nacos-standlone-mysql.env
-    # 数据卷挂载配置
-    volumes:
-      # 将本地日志目录挂载到容器
-      - ./data/nacos_logs/:/home/nacos/logs
-      # 将本地配置文件挂载到容器
-      - ./config/nacos/custom.properties:/home/nacos/init.d/custom.properties
-    # 端口映射
-    ports:
-      # Nacos 主端口映射：宿主机的 8848 映射到容器的 8848
-      - 8848:8848
-      # gRPC 端口映射：宿主机的 9848 映射到容器的 9848
-      - 9848:9848
-      # 其他服务端口映射：宿主机的 9555 映射到容器的 9555
-      - 9555:9555
-    # 依赖 mysql 服务，必须在 MySQL 启动后运行
+      - DATA_SOURCE_NAME=root:root@tcp(mysql:3306)/
     depends_on:
       - mysql
-    # 容器失败时自动重启
-    restart: on-failure
-    # 将服务加入 zhiyu-network 网络
     networks:
-      - zhiyu-network
+      - binghe-network
+  redis:
+    container_name: redis
+    image: redislabs/redismod:latest
+    ports:
+      - 6379:6379
+    networks:
+      - binghe-network
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - 8082:8081
+    networks:
+      - binghe-network
+  redis-exporter:
+    image: oliver006/redis_exporter
+    command: -redis.addr redis://redis:6379
+    ports:
+      - 9121:9121
+    networks:
+      - binghe-network
+
+  sentinel:
+    image: bladex/sentinel-dashboard
+    container_name: sentinel
+    ports:
+      - 8858:8858
+    networks:
+      - binghe-network
+  nacos:
+    image: nacos/nacos-server:2.0.3
+    container_name: nacos-standalone-mysql
+    env_file:
+      - ./config/nacos/nacos-standlone-mysql.env
+    volumes:
+      - ./data/nacos_logs/:/home/nacos/logs
+      - ./config/nacos/custom.properties:/home/nacos/init.d/custom.properties
+    ports:
+      - 8848:8848
+      - 9848:9848
+      - 9555:9555
+    depends_on:
+      - mysql
+    restart: on-failure
+    networks:
+      - binghe-network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.rootfs=/rootfs
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    ports:
+      - 9100:9100
+    networks:
+      - binghe-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data/prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.enable-lifecycle
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 9090:9090
+    networks:
+      - binghe-network
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    hostname: grafana
+    environment:
+      - GF_INSTALL_PLUGINS=redis-app
+      - GF_INSTALL_PLUGINS=redis-datasource
+      - GF_INSTALL_PLUGINS=redis-explorer-app
+    volumes:
+      - ./grafana-storage:/var/lib/grafana
+    ports:
+      - 3000:3000
+    external_links:
+      - redis:redis
+    networks:
+      - binghe-network
+
+  rmqnamesrv:
+    image: apacherocketmq/rocketmq:4.5.0
+    container_name: rmqnamesrv
+    ports:
+      - 9876:9876
+    volumes:
+      - ./data/rocketmq/logs:/home/rocketmq/logs
+      - ./data/rocketmq/store:/home/rocketmq/store
+    command: sh mqnamesrv
+    networks:
+      - binghe-network
+
+  rmqbroker:
+    image: apacherocketmq/rocketmq:4.5.0
+    container_name: rmqbroker
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    volumes:
+      - ./data/rocketmq/logs:/home/rocketmq/logs
+      - ./data/rocketmq/store:/home/rocketmq/store
+      - ./config/rocketmq/broker.conf:/home/rocketmq/rocketmq-4.5.0/conf/broker.conf
+    command: sh mqbroker -n rmqnamesrv:9876 -c ../conf/broker.conf
+    depends_on:
+      - rmqnamesrv
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/jre
+    networks:
+      - binghe-network
+  rmqconsole:
+    image: styletang/rocketmq-console-ng:latest
+    container_name: rocketmq-console
+    ports:
+      - 8076:8080
+    depends_on:
+      - rmqnamesrv
+    environment:
+      - JAVA_OPTS= -Dlogging.level.root=info  -Drocketmq.namesrv.addr=rmqnamesrv:9876
+      - Dcom.rocketmq.sendMessageWithVIPChannel=false
+    networks:
+      - binghe-network
+
+  elasticsearch:
+    image: elasticsearch:7.14.2
+    container_name: elasticsearch
+    volumes:
+      - ./config/elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      discovery.type: single-node
+    networks:
+      - binghe-network
+
+  logstash:
+    image: logstash:7.14.2
+    container_name: logstash
+    volumes:
+      - ./config/elk/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./config/elk/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - binghe-network
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:7.14.2
+    container_name: kibana
+    volumes:
+      - ./config/elk/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - "5601:5601"
+    networks:
+      - binghe-network
+    depends_on:
+      - elasticsearch
+
+
+

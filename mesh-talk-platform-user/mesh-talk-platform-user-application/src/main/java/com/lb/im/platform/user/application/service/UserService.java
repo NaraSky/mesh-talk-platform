@@ -56,6 +56,14 @@ public interface UserService {
     UserVO findUserById(Long id, boolean constantsOnlineFlag);
 
     /**
+     * 根据用户id获取用户实体对象
+     *
+     * @param userId 用户id
+     * @return 用户对象
+     */
+    User getUserById(Long userId);
+
+    /**
      * 根据用户昵称查询用户，最多返回20条数据
      *
      * @param name 用户名或昵称

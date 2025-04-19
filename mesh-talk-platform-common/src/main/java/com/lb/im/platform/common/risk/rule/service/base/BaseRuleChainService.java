@@ -17,11 +17,31 @@ import java.net.UnknownHostException;
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 
+/**
+ * 规则链服务的基础抽象类，实现了RuleChainService接口的通用功能
+ * 
+ * 该类提供了所有规则实现类共用的基础功能，包括：
+ * 1. 获取客户端真实IP地址
+ * 2. 用户会话管理和JWT令牌验证
+ * 3. 默认的滑动窗口参数（用于限流）
+ * 
+ * 技术要点：
+ * 1. 使用JWT（JSON Web Token）进行用户认证
+ * 2. 处理多种代理环境下的客户端IP获取
+ * 3. 提供异常处理和无异常处理两种用户会话获取方式
+ */
 public abstract class BaseRuleChainService implements RuleChainService {
 
     private final Logger logger = LoggerFactory.getLogger(BaseRuleChainService.class);
 
+    /**
+     * 默认滑动窗口大小（用于限流规则）
+     */
     protected static final int DEFAULT_WINDOWS_SIZE = 50;
+
+    /**
+     * 默认滑动窗口周期，单位毫秒（用于限流规则）
+     */
     protected static final int DEFAULT_WINDOWS_PERIOD = 1000;
 
     @Autowired
@@ -33,12 +53,29 @@ public abstract class BaseRuleChainService implements RuleChainService {
     private static final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
     private static final String SEPARATOR = ",";
 
+    /**
+     * 构造函数，记录当前规则服务的名称
+     */
     public BaseRuleChainService() {
         logger.info("IMBaseRuleChainService|当前规则服务|{}", this.getServiceName());
     }
 
     /**
-     * 获取ip地址
+     * 获取客户端真实IP地址
+     * 
+     * 该方法处理了各种代理环境下的IP获取逻辑，按以下顺序尝试获取：
+     * 1. x-forwarded-for头
+     * 2. Proxy-Client-IP头
+     * 3. X-Forwarded-For头
+     * 4. WL-Proxy-Client-IP头
+     * 5. X-Real-IP头
+     * 6. 请求的远程地址
+     * 
+     * 对于本地请求（127.0.0.1或IPv6格式的本地地址），尝试获取本机网卡IP
+     * 对于多级代理的情况，提取第一个非unknown的IP地址
+     * 
+     * @param request HTTP请求对象
+     * @return 客户端真实IP地址，如果无法获取则返回"unknown"
      */
     protected String getIp(HttpServletRequest request) {
         if (request == null) {
@@ -81,7 +118,14 @@ public abstract class BaseRuleChainService implements RuleChainService {
     }
 
     /**
-     * 获取UserSession
+     * 获取用户会话（带异常处理）
+     * 
+     * 从请求头中获取访问令牌，验证其有效性，并解析出用户会话信息。
+     * 如果令牌不存在或无效，将抛出IMException异常。
+     * 
+     * @param request HTTP请求对象
+     * @return 用户会话对象
+     * @throws IMException 当用户未登录或令牌无效时抛出
      */
     protected UserSession getUserSession(HttpServletRequest request) {
         //从 http 请求头中取出 token
@@ -105,7 +149,14 @@ public abstract class BaseRuleChainService implements RuleChainService {
     }
 
     /**
-     * 获取UserSession
+     * 获取用户会话（无异常处理）
+     * 
+     * 从请求头中获取访问令牌，验证其有效性，并解析出用户会话信息。
+     * 与getUserSession不同，此方法在令牌不存在或无效时返回null而不是抛出异常。
+     * 适用于不强制要求用户登录的场景。
+     * 
+     * @param request HTTP请求对象
+     * @return 用户会话对象，如果未登录或令牌无效则返回null
      */
     protected UserSession getUserSessionWithoutException(HttpServletRequest request) {
         //从 http 请求头中取出 token
@@ -126,7 +177,11 @@ public abstract class BaseRuleChainService implements RuleChainService {
     }
 
     /**
-     * 当前服务的服务名称
+     * 获取当前规则服务的名称
+     * 
+     * 由子类实现，用于日志记录和服务识别
+     * 
+     * @return 规则服务的名称
      */
     public abstract String getServiceName();
 }

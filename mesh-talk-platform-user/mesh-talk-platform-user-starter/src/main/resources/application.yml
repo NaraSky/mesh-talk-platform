@@ -1,29 +1,27 @@
+#这是配置服务的端口
 server:
-  port: 8888
-
-# Spring框架核心配置
+  port: 10004
+  servlet:
+    context-path: /group-server
+#配置项目的数据源
 spring:
   application:
-    name: mesh-talk-platform-user
+    name: bh-im-platform-group
   main:
     allow-bean-definition-overriding: true
-  # Spring MVC相关配置
   mvc:
-    # 路径匹配策略配置
     pathmatch:
-      # 使用Ant风格的路径匹配器（支持通配符匹配）
       matching-strategy: ant_path_matcher
-
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://117.72.33.162:13306/mesh_talk_im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://117.72.33.162:3306/bh_im?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
     username: root
     password: root
 
   redis:
     database: 0
     host: 117.72.33.162
-    port: 16379
+    port: 6379
     password:
     timeout: 30000
     lettuce:
@@ -33,69 +31,75 @@ spring:
         max-idle: 8
         min-idle: 0
         max-wait: 5000
-    address: redis://117.72.33.162:16379
+    address: redis://117.72.33.162:6379
 
-  # Servlet配置
   servlet:
-    # 文件上传配置
     multipart:
-      # 单个文件最大允许大小
       max-file-size: 50MB
-      # 请求体最大允许大小
       max-request-size: 50MB
 
-# MyBatis-Plus框架配置
+  cloud:
+    nacos:
+      config:
+        server-addr: 117.72.33.162:8848
+        file-extension: json
+        namespace: bh-im-config
+        access-key: nacos
+        secret-key: nacos
+        group: BH-IM-GROUP
+      discovery:
+        server-addr: 117.72.33.162:8848
+        enabled: true
+        namespace: bh-im-config
+        access-key: nacos
+        secret-key: nacos
+        group: BH-IM-GROUP
+
+dubbo:
+  application:
+    name: ${spring.application.name}
+  scan:
+    base-packages: io.binghe.im
+  protocol:
+    name: dubbo
+    port: 20883
+  registry:
+    address: nacos://117.72.33.162:8848?register-consumer-url=true
+    register-mode: instance
+
 mybatis-plus:
   configuration:
-    # 禁用下划线到驼峰的自动映射（需手动处理字段命名）
+    # 是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN（下划线命名） 到经典 Java 属性名 aColumn（驼峰命名） 的类似映射
     map-underscore-to-camel-case: false
-  # XML映射文件路径配置
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # mapper
   mapper-locations:
-    # 指定XML映射文件的类路径位置
+    # *.xml的具体路径
     - classpath*:mapper/*.xml
-
-# MinIO对象存储配置
 minio:
-  # 内网访问地址（用于内部服务调用）
-  endpoint: http://117.72.33.162:9001
-  # 外网访问地址（用于外部访问）
-  public: http://117.72.33.162:9001
-  # MinIO认证凭证
-  accessKey: zhiyu
-  secretKey: zhiyu1120
-  # 存储桶名称及路径配置
-  bucketName: zhiyu-im
+  endpoint: http://117.72.33.162:9001 #内网地址
+  public: http://117.72.33.162:9001  #外网访问地址
+  accessKey: binghe
+  secretKey: binghe123
+  bucketName: bh-im
   imagePath: image
   filePath: file
 
-# WebRTC配置
 webrtc:
-  # ICE服务器配置（用于网络连接中继）
   iceServers:
     - urls: stun:stun.l.google.com:19302
 
-# JWT令牌配置
 jwt:
-  # 访问令牌配置
   accessToken:
-    # 令牌有效期（秒）
-    expireIn: 1800
-    # 令牌签名密钥
-    secret: zhiyu123
-  # 刷新令牌配置
+    expireIn: 1800 #半个小时
+    secret: binghe123
   refreshToken:
-    # 令牌有效期（秒）
-    expireIn: 604800  #7天
-    # 令牌签名密钥
-    secret: zhiyu123456
+    expireIn: 604800 #7天
+    secret: binghe123456
 
-# RocketMQ消息队列配置
 rocketmq:
-  # 消息服务器地址
   name-server: 117.72.33.162:9876
-  # 生产者配置
   producer:
-    # 生产者组名称
     group: im-plate-group
 
 local:
@@ -112,17 +116,15 @@ redis:
   arrange:
     type: single # single or cluster
 
-# 消息配置
 message:
-  # 消息队列类型配置
   mq:
     event:
       type: rocketmq
-    # 指定使用RocketMQ作为消息中间件
     type: rocketmq
 
 #logging:
 #  config: classpath:logback-prod.xml
+
 
 mesh:
   talk:
@@ -139,6 +141,6 @@ mesh:
         windowPeriod: 1000
       pathRule:
         enabled: true
-        order: 2
+        order: 1
         windowsSize: 50
         windowPeriod: 1000

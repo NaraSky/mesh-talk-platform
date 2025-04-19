@@ -26,6 +26,10 @@
             <artifactId>mesh-talk-platform-user-interfaces</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

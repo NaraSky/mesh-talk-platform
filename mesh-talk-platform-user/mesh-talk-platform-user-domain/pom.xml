@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>com.lb.im.platform</groupId>
-            <artifactId>mesh-talk-platform-common</artifactId>
+            <artifactId>mesh-talk-platform-dubbo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

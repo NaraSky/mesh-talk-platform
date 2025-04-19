@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.lb.im.common.cache.distribute.DistributedCacheService;
 import com.lb.im.common.cache.id.SnowFlakeFactory;
-import com.lb.im.common.domain.enums.IMDeviceType;
+import com.lb.im.common.domain.enums.IMTerminalType;
 import com.lb.im.common.domain.jwt.JwtUtils;
 import com.lb.im.platform.common.exception.IMException;
 import com.lb.im.platform.common.jwt.JwtProperties;
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         // 生成token部分
         UserSession session = BeanUtils.copyProperties(user, UserSession.class);
         session.setUserId(user.getId());
-        session.setDeviceType(dto.getTerminal());
+        session.setTerminal(dto.getTerminal());
         String strJson = JSON.toJSONString(session);
         String accessToken = JwtUtils.sign(
                 user.getId(),
@@ -231,7 +231,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserVO findUserById(Long id, boolean constantsOnlineFlag) {
-        User user = distributedCacheService.queryWithPassThrough(IMPlatformConstants.PLATFORM_REDIS_USER_KEY, id, User.class, userDomainService::getById, IMPlatformConstants.DEFAULT_REDIS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+        User user = this.getUserById(id);
         if (user == null) {
             throw new IMException(HttpCode.PROGRAM_ERROR, "当前用户不存在");
         }
@@ -241,6 +241,21 @@ public class UserServiceImpl implements UserService {
         }
         return vo;
     }
+
+    /**
+     * 通过用户ID从分布式缓存中获取用户信息。采用PassThrough缓存模式：
+     *  首先尝试从缓存中获取数据，若缓存未命中，则调用数据库服务（userDomainService.getById）查询数据，并将结果缓存指定时间后返回。
+     *
+     * @param userId 用户ID
+     * @return 用户对象，若未找到或缓存未命中且数据库也不存在则返回null
+     */
+    @Override
+    public User getUserById(Long userId) {
+        return distributedCacheService.queryWithPassThrough(IMPlatformConstants.PLATFORM_REDIS_USER_KEY,
+                                                            userId, User.class, userDomainService::getById,
+                                                            IMPlatformConstants.DEFAULT_REDIS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+    }
+
 
     @Override
     public List<UserVO> findUserByName(String name) {
@@ -268,14 +283,14 @@ public class UserServiceImpl implements UserService {
         /**
          * 查询指定用户列表的在线终端信息。
          */
-        Map<Long, List<IMDeviceType>> terminalMap = imClient.getOnlineTerminal(userIdList);
+        Map<Long, List<IMTerminalType>> terminalMap = imClient.getOnlineTerminal(userIdList);
 
         /**
          * 将终端类型信息转换为视图对象。
          */
         List<OnlineTerminalVO> vos = new LinkedList<>();
         terminalMap.forEach((userId, types) -> {
-            List<Integer> terminals = types.stream().map(IMDeviceType::getCode).collect(Collectors.toList());
+            List<Integer> terminals = types.stream().map(IMTerminalType::getCode).collect(Collectors.toList());
             vos.add(new OnlineTerminalVO(userId, terminals));
         });
         return vos;

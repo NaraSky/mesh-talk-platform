@@ -20,8 +20,7 @@ public class SessionContext {
      */
     public static UserSession getSession() {
         /* 从Spring的请求上下文中获取当前的ServletRequestAttributes对象 */
-        ServletRequestAttributes requestAttributes = ServletRequestAttributes.class.
-                cast(RequestContextHolder.getRequestAttributes());
+        ServletRequestAttributes requestAttributes = ServletRequestAttributes.class.cast(RequestContextHolder.getRequestAttributes());
         /* 从ServletRequestAttributes中获取HttpServletRequest对象 */
         HttpServletRequest request = requestAttributes.getRequest();
         Object object = request.getAttribute(IMPlatformConstants.SESSION);

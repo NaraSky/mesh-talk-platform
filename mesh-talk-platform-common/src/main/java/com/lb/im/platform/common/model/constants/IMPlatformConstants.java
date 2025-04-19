@@ -57,6 +57,11 @@ public class IMPlatformConstants {
      */
     public static final String EVENT_USER_CONSUMER_GROUP = "event_user_consumer_group";
 
+    /**
+     * 默认Dubbo版本
+     */
+    public static final String DEFAULT_DUBBO_VERSION = "1.0.0";
+
     public static String getKey(String prefix, String key) {
         return prefix.concat(key);
     }

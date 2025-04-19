@@ -17,12 +17,8 @@ import java.io.IOException;
 public class CacheFilter implements Filter {
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         // 创建请求包装器实例，将原始请求包装为可缓存的版本
-        filterChain.doFilter(
-                new CacheHttpServletRequestWrapper((HttpServletRequest) servletRequest),
-                servletResponse
-        );
+        filterChain.doFilter(new CacheHttpServletRequestWrapper((HttpServletRequest) servletRequest), servletResponse);
     }
 }
