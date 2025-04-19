@@ -13,7 +13,7 @@ public class IMPlatformConstants {
      * 缓存数据默认10分钟过期
      * 用于设置Redis缓存的默认过期时间
      */
-    public static final Long DEFAULT_REDIS_CACHE_EXPIRE_TIME = 10L;
+    public static final Long DEFAULT_REDIS_CACHE_EXPIRE_TIME = 2L;
 
     /**
      * 好友关系操作类型 - 添加好友
@@ -96,6 +96,17 @@ public class IMPlatformConstants {
      * RocketMQ中好友相关事件的主题名称
      */
     public static final String TOPIC_EVENT_ROCKETMQ_FRIEND = "topic_event_rocketmq_friend";
+
+    /**
+     * 更新用户信息异步更新好友表数据
+     */
+    public static final String TOPIC_USER_TO_FRIEND = "topic_user_to_friend";
+
+    /**
+     * 消费者分组
+     */
+    public static final String TOPIC_USER_TO_FRIEND_GROUP = "topic_user_to_friend_group";
+
 
     /**
      * Cola订阅事件

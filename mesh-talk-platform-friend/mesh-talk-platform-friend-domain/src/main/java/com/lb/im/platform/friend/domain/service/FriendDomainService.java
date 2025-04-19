@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lb.im.platform.common.model.entity.Friend;
 import com.lb.im.platform.common.model.vo.FriendVO;
 import com.lb.im.platform.friend.domain.model.command.FriendCommand;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -91,4 +92,9 @@ public interface FriendDomainService extends IService<Friend> {
      * @return 好友实体对象列表，包含完整的好友关系数据
      */
     List<Friend> getFriendByUserId(Long userId);
+
+    /**
+     * 更新好友数据表数据
+     */
+    int updateFriendByFriendId(@Param("headImage") String headImage, String nickName, Long friendId);
 }

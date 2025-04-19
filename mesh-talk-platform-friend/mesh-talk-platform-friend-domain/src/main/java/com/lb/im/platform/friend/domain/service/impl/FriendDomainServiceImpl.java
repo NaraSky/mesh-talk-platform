@@ -222,4 +222,9 @@ public class FriendDomainServiceImpl extends ServiceImpl<FriendRepository, Frien
                IMPlatformConstants.TOPIC_EVENT_ROCKETMQ_FRIEND : 
                IMPlatformConstants.TOPIC_EVENT_COLA;
     }
+
+    @Override
+    public int updateFriendByFriendId(String headImage, String nickName, Long friendId) {
+        return baseMapper.updateFriendByFriendId(headImage, nickName, friendId);
+    }
 }

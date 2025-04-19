@@ -7,6 +7,7 @@ import com.lb.im.common.cache.distribute.DistributedCacheService;
 import com.lb.im.common.cache.id.SnowFlakeFactory;
 import com.lb.im.common.domain.enums.IMTerminalType;
 import com.lb.im.common.domain.jwt.JwtUtils;
+import com.lb.im.common.mq.MessageSenderService;
 import com.lb.im.platform.common.exception.IMException;
 import com.lb.im.platform.common.jwt.JwtProperties;
 import com.lb.im.platform.common.model.constants.IMPlatformConstants;
@@ -15,6 +16,7 @@ import com.lb.im.platform.common.model.dto.ModifyPwdDTO;
 import com.lb.im.platform.common.model.dto.RegisterDTO;
 import com.lb.im.platform.common.model.entity.User;
 import com.lb.im.platform.common.model.enums.HttpCode;
+import com.lb.im.platform.common.model.event.User2FriendEvent;
 import com.lb.im.platform.common.model.vo.LoginVO;
 import com.lb.im.platform.common.model.vo.OnlineTerminalVO;
 import com.lb.im.platform.common.model.vo.UserVO;
@@ -54,6 +56,8 @@ public class UserServiceImpl implements UserService {
     private JwtProperties jwtProperties;
     @Autowired
     private IMClient imClient;
+    @Autowired
+    private MessageSenderService messageSenderService;
 
     /**
      * 用户登录验证，验证成功后生成访问令牌和刷新令牌。
@@ -202,14 +206,6 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(user)) {
             throw new IMException(HttpCode.PROGRAM_ERROR, "用户不存在");
         }
-        //TODO 如果用户更新了昵称和头像，则更新好友昵称和头像
-        if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-            //TODO 后续完善
-        }
-        //TODO 群聊中的头像是缩略图，需要更新群聊中的头像
-        if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
-
-        }
         //更新用户的基本信息
         if (!StrUtil.isEmpty(vo.getNickName())) {
             user.setNickName(vo.getNickName());
@@ -226,7 +222,18 @@ public class UserServiceImpl implements UserService {
         if (!StrUtil.isEmpty(vo.getHeadImageThumb())) {
             user.setHeadImageThumb(vo.getHeadImageThumb());
         }
-        userDomainService.saveOrUpdateUser(user);
+        boolean result = userDomainService.saveOrUpdateUser(user);
+        if (!result) return;
+        //TODO 如果用户更新了昵称和头像，则更新好友昵称和头像
+        if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
+            //TODO 后续完善
+            User2FriendEvent user2FriendEvent = new User2FriendEvent(session.getUserId(), vo.getNickName(), vo.getHeadImageThumb(), IMPlatformConstants.TOPIC_USER_TO_FRIEND);
+            messageSenderService.send(user2FriendEvent);
+        }
+        //TODO 群聊中的头像是缩略图，需要更新群聊中的头像
+        if (!user.getNickName().equals(vo.getNickName()) || !user.getHeadImageThumb().equals(vo.getHeadImageThumb())) {
+
+        }
     }
 
     @Override
@@ -244,7 +251,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 通过用户ID从分布式缓存中获取用户信息。采用PassThrough缓存模式：
-     *  首先尝试从缓存中获取数据，若缓存未命中，则调用数据库服务（userDomainService.getById）查询数据，并将结果缓存指定时间后返回。
+     * 首先尝试从缓存中获取数据，若缓存未命中，则调用数据库服务（userDomainService.getById）查询数据，并将结果缓存指定时间后返回。
      *
      * @param userId 用户ID
      * @return 用户对象，若未找到或缓存未命中且数据库也不存在则返回null
