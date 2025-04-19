@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor 用户 as user
+participant 消息微服务 as message
+database 消息数据库 as db
+participant 分布式缓存 as redis
+participant 即时通讯SDK as sdk
+queue 消息中间件 as mq
+participant 即时通讯后端服务 as imBackend
+participant 群组 as groups
+
+activate message
+
+user -> message : 触发群聊消息已读
+message -> db : 查询当前群组最大消息id
+activate db
+db --> message : 返回当前群组最大消息id
+deactivate db
+message -> message : 构建群聊消息发送模型
+message -> sdk : 发送已读群聊消息
+activate sdk
+sdk -> mq : 发送已读群聊消息
+deactivate sdk
+activate mq
+imBackend -> mq : 监听已读群聊消息
+activate imBackend
+mq --> imBackend : 接收已读群聊消息
+deactivate mq
+imBackend -> groups : 推送已读群聊消息
+message -> redis : 更新用户在群组内的最大已读消息id
+@enduml

@@ -46,6 +46,11 @@ public interface GroupMessageDomainService extends IService<GroupMessage> {
      * 拉取在某个群的消息
      */
     List<GroupMessageVO> getHistoryMessage(Long groupId, Date sendTime, Integer status, long stIdx, long size);
+
+    /**
+     * 获取最大消息id
+     */
+    Long getMaxMessageId(Long groupId);
 }
 
 

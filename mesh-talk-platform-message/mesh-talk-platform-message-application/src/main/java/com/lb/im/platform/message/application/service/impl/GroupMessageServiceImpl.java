@@ -14,6 +14,7 @@ import com.lb.im.platform.common.model.constants.IMPlatformConstants;
 import com.lb.im.platform.common.model.dto.GroupMessageDTO;
 import com.lb.im.platform.common.model.enums.HttpCode;
 import com.lb.im.platform.common.model.enums.MessageStatus;
+import com.lb.im.platform.common.model.enums.MessageType;
 import com.lb.im.platform.common.model.params.GroupParams;
 import com.lb.im.platform.common.model.vo.GroupMemberSimpleVO;
 import com.lb.im.platform.common.model.vo.GroupMessageVO;
@@ -281,5 +282,30 @@ public class GroupMessageServiceImpl implements GroupMessageService {
         }
         logger.info("拉取群聊记录，用户id:{},群聊id:{}，数量:{}", userId, groupId, historyMessage.size());
         return historyMessage;
+    }
+
+    @Override
+    public void readedMessage(Long groupId) {
+        UserSession session = SessionContext.getSession();
+        // 取出最后的消息id
+        Long maxMessageId = groupMessageDomainService.getMaxMessageId(groupId);
+        if (maxMessageId == null){
+            return;
+        }
+        // 推送消息给自己的其他终端
+        GroupMessageVO msgInfo = new GroupMessageVO();
+        msgInfo.setType(MessageType.READED.code());
+        msgInfo.setSendTime(new Date());
+        msgInfo.setSendId(session.getUserId());
+        msgInfo.setGroupId(groupId);
+        IMGroupMessage<GroupMessageVO> sendMessage = new IMGroupMessage<>();
+        sendMessage.setSender(new IMUserInfo(session.getUserId(), session.getTerminal()));
+        sendMessage.setSendToSelf(true);
+        sendMessage.setData(msgInfo);
+        sendMessage.setSendResult(false);
+        imClient.sendGroupMessage(sendMessage);
+        // 记录已读消息位置
+        String key = StrUtil.join(IMConstants.REDIS_KEY_SPLIT, IMConstants.IM_GROUP_READED_POSITION, groupId, session.getUserId());
+        distributedCacheService.set(key, String.valueOf(maxMessageId));
     }
 }

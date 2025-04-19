@@ -91,4 +91,9 @@ public class GroupMessageDomainServiceImpl extends ServiceImpl<GroupMessageRepos
     public List<GroupMessageVO> getHistoryMessage(Long groupId, Date sendTime, Integer status, long stIdx, long size) {
         return baseMapper.getHistoryMessage(groupId, sendTime, status, stIdx, size);
     }
+
+    @Override
+    public Long getMaxMessageId(Long groupId) {
+        return baseMapper.getMaxMessageId(groupId);
+    }
 }

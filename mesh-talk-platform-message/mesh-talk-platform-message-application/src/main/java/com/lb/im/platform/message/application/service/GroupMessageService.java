@@ -55,4 +55,9 @@ public interface GroupMessageService {
      * 拉取历史聊天记录
      */
     List<GroupMessageVO> findHistoryMessage(Long groupId, Long page, Long size);
+
+    /**
+     * 消息已读,同步其他终端，清空未读数量
+     */
+    void readedMessage(Long groupId);
 }

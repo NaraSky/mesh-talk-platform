@@ -52,7 +52,7 @@ public interface GroupMessageRepository extends BaseMapper<GroupMessage> {
             " order by id asc limit #{limitCount} " +
             "</script>"})
     List<GroupMessageVO> loadGroupMessageList(@Param("minId") Long minId, @Param("minDate") Date minDate, @Param("ids") List<Long> ids,
-                                              @Param("status") Integer status,  @Param("limitCount") Integer limitCount);
+                                              @Param("status") Integer status, @Param("limitCount") Integer limitCount);
 
     @Select({"<script> " +
             "select id as id, group_id as groupId, send_id as sendId, send_nick_name as sendNickName, " +
@@ -62,5 +62,8 @@ public interface GroupMessageRepository extends BaseMapper<GroupMessage> {
             "</script>"})
     List<GroupMessageVO> getHistoryMessage(@Param("groupId") Long groupId, @Param("sendTime") Date sendTime,
                                            @Param("status") Integer status, @Param("stIdx") long stIdx, @Param("size") long size);
+
+    @Select("select id from im_group_message where group_id = #{groupId} order by id desc limit 1")
+    Long getMaxMessageId(@Param("groupId") Long groupId);
 }
 
