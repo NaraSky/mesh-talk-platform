@@ -1,0 +1,77 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor 用户 as user
+participant 消息微服务 as message
+database 消息数据库 as db
+participant 好友微服务 as friend
+participant 即时通讯SDK as sdk
+queue 消息中间件 as mq
+participant 即时通讯后端服务 as imBackend
+
+activate message
+
+alt 拉取未读消息的流程
+
+  user -> message : 拉取未读消息
+  message -> sdk : 检测用户是否在线
+  activate sdk
+  sdk --> message : 返回用户是否在线的结果'
+  deactivate sdk
+  group 用户不在线
+    message --> user : 返回异常状态
+  end
+  group 用户在线
+    message -> friend : 获取好友id列表
+    activate friend
+    friend --> message : 返回好友id列表
+    deactivate friend
+    message -> db : 查询未读消息
+    activate db
+    db --> message : 未读消息
+    deactivate db
+    message -> message : 打印日志
+    message -> sdk : 发送单聊消息
+    note right of message
+      发送单聊消息是异步操作
+    end note
+    sdk -> mq : 发送单聊消息
+    activate mq
+    imBackend -> mq : 监听单聊消息
+    activate imBackend
+    mq --> imBackend : 接收单聊消息
+    deactivate mq
+    imBackend -> user : 推送单聊消息
+    deactivate imBackend
+  end
+end
+
+alt 拉取消息全站消息的流程
+    user -> message : 拉取全站消息
+    message -> friend : 获取好友id列表
+    activate friend
+    friend --> message : 返回好友id列表
+    deactivate friend
+    message -> db : 查询最近一个月，每次最多100条消息
+    activate db
+    db --> message : 查询结果数据
+    deactivate db
+    message -> db : 批量更新消息状态
+    note right of message
+     批量更新消息状态是异步操作
+    end note
+    activate db
+    db --> message : 批量更新结果
+    deactivate db
+    message -> message : 打印日志
+    message --> user : 全站消息列表
+end
+
+alt 分页拉取与某个用户的聊天记录的流程
+    user -> message : 分页拉取聊天记录
+    message -> db : 分页查询消息数据
+    activate db
+    db --> message : 分页查询结果
+    deactivate db
+    message --> user : 分页聊天记录结果数据
+end
+@enduml

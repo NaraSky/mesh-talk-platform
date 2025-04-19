@@ -228,10 +228,16 @@ public class IMPlatformConstants {
      * 单聊消息
      */
     public static final String TYPE_MESSAGE_PRIVATE = "type_private";
+
     /**
      * 群聊消息
      */
     public static final String TYPE_MESSAGE_GROUP = "type_group";
+
+    /**
+     * 拉取历史消息限制
+     */
+    public static final int PULL_HISTORY_MESSAGE_LIMIT_COUNR = 100;
 
     /**
      * 默认Dubbo版本
