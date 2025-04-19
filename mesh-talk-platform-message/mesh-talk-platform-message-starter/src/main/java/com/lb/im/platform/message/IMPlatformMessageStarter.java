@@ -1,6 +1,7 @@
 package com.lb.im.platform.message;
 
-import com.lb.im.platform.common.threadpool.ThreadPoolUtils;
+import com.lb.im.platform.common.threadpool.GroupMessageThreadPoolUtils;
+import com.lb.im.platform.common.threadpool.PrivateMessageThreadPoolUtils;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -32,11 +33,14 @@ public class IMPlatformMessageStarter {
      */
     public static void main(String[] args) {
         // 添加JVM关闭钩子，确保应用关闭时线程池能够正确释放资源
-        Runtime.getRuntime().addShutdownHook(new Thread(ThreadPoolUtils::shutdown));
-        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            PrivateMessageThreadPoolUtils.shutdown();
+            GroupMessageThreadPoolUtils.shutdown();
+        }));
+
         // 设置用户主目录路径
         System.setProperty("user.home", "C:\\soft\\code\\bh-im-platform\\bh-im-platform-message");
-        
+
         // 启动Spring应用
         SpringApplication.run(IMPlatformMessageStarter.class, args);
     }

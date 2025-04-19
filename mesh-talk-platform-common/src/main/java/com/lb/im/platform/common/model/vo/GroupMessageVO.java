@@ -32,6 +32,9 @@ public class GroupMessageVO {
     @ApiModelProperty(value = "@用户列表")
     private List<Long> atUserIds;
 
+    @ApiModelProperty(value = "@用户列表")
+    private String atUserIdsStr;
+
     @ApiModelProperty(value = " 状态")
     private Integer status;
 
@@ -124,5 +127,13 @@ public class GroupMessageVO {
 
     public void setSendTime(Date sendTime) {
         this.sendTime = sendTime;
+    }
+
+    public String getAtUserIdsStr() {
+        return atUserIdsStr;
+    }
+
+    public void setAtUserIdsStr(String atUserIdsStr) {
+        this.atUserIdsStr = atUserIdsStr;
     }
 }

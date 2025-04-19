@@ -240,6 +240,16 @@ public class IMPlatformConstants {
     public static final int PULL_HISTORY_MESSAGE_LIMIT_COUNR = 100;
 
     /**
+     * 默认的页码
+     */
+    public static final int DEFAULT_PAGE = 1;
+
+    /**
+     * 默认每页记录数
+     */
+    public static final int DEFAULT_PAGE_SIZE = 10;
+
+    /**
      * 默认Dubbo版本
      */
     public static final String DEFAULT_DUBBO_VERSION = "1.0.0";

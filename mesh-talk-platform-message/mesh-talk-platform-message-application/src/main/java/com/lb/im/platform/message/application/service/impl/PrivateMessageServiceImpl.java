@@ -15,7 +15,7 @@ import com.lb.im.platform.common.model.enums.MessageStatus;
 import com.lb.im.platform.common.model.vo.PrivateMessageVO;
 import com.lb.im.platform.common.session.SessionContext;
 import com.lb.im.platform.common.session.UserSession;
-import com.lb.im.platform.common.threadpool.ThreadPoolUtils;
+import com.lb.im.platform.common.threadpool.PrivateMessageThreadPoolUtils;
 import com.lb.im.platform.common.utils.DateTimeUtils;
 import com.lb.im.platform.dubbo.friend.FriendDubboService;
 import com.lb.im.platform.message.application.service.PrivateMessageService;
@@ -225,7 +225,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         }
         
         // 异步更新消息状态为已发送
-        ThreadPoolUtils.execute(() -> {
+        PrivateMessageThreadPoolUtils.execute(() -> {
             // 筛选需要更新状态的消息ID
             List<Long> ids = privateMessageList.stream()
                     .filter(m -> !m.getSendId().equals(session.getUserId()) && m.getStatus().equals(MessageStatus.UNSEND.code()))

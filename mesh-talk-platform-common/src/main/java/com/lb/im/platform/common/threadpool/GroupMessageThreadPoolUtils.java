@@ -10,7 +10,7 @@ import java.util.concurrent.*;
  * 2. 通过ThreadPoolExecutor自定义线程池参数，实现线程资源的高效利用
  * 3. 支持任务提交和线程池关闭的统一管理
  */
-public class ThreadPoolUtils {
+public class GroupMessageThreadPoolUtils {
     /**
      * 线程池执行器实例
      * 核心线程数: 8 - 保持活跃的基本线程数

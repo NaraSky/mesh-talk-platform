@@ -1,0 +1,93 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+actor 用户 as user
+participant 消息微服务 as message
+database 消息数据库 as db
+participant 分布式缓存 as redis
+participant 群组微服务 as groupServer
+participant 即时通讯SDK as sdk
+queue 消息中间件 as mq
+participant 即时通讯后端服务 as imBackend
+
+activate message
+
+alt 拉取未读消息的流程
+
+  user -> message : 拉取未读消息
+  message -> groupServer : 获取用户在所有群的记录信息
+  activate groupServer
+  groupServer --> message : 返回用户在所有群的信息
+  deactivate groupServer
+  group 用户在所有群的信息为空
+    message --> user : 返回状态码
+  end
+  group 用户在所有群的信息不为空
+    loop 循环用户在每个群组的信息
+        message -> redis : 获取用户在群组内已读消息的最大id
+        activate redis
+        redis --> message : 返回用户在群组内已读消息的最大id
+        deactivate redis
+        message -> db : 获取未读消息记录
+        activate db
+        db --> message : 未读消息记录
+        deactivate db
+        note right of message
+           以下操作都是异步执行
+        end note
+        loop 循环未读消息记录
+            message -> message : 构造群聊消息推送模型
+            message -> sdk : 发送群聊消息
+            activate sdk
+            sdk -> mq : 发送群聊消息
+            deactivate sdk
+            activate mq
+            imBackend -> mq : 监听群聊消息
+            activate imBackend
+            mq --> imBackend : 接收群聊消息
+            deactivate mq
+            imBackend -> user : 推送群聊消息
+            deactivate imBackend
+        end
+    end
+  end
+
+end
+
+alt 拉取消息全站消息的流程
+    user -> message : 拉取全站消息
+    message -> groupServer : 获取群id列表
+    activate groupServer
+    groupServer --> message : 群id列表
+    deactivate groupServer
+    group 群id列表为空
+        message --> user : 返回空数据
+    end
+    group 群id列表不为空
+        message -> db : 查询最近一个月，每次最多100条消息
+        activate db
+        db --> message : 查询出的群聊消息列表
+        deactivate db
+        message -> redis : 查询当前用户在每个群聊已读消息的最大id
+        activate redis
+        redis --> message : 群聊已读消息的最大id列表
+        deactivate redis
+        loop 循环群聊已读消息的最大id列表
+            message -> message : 设置群聊消息列表中每条消息的状态
+        end
+    end
+    message --> user : 返回群聊消息列表
+end
+
+alt 分页拉取在某个群的聊天记录的流程
+    user -> message : 分页拉取聊天记录
+    message -> groupServer : 查询当前用户在群组中的成员信息
+    activate groupServer
+    groupServer --> message : 返回成员信息
+    deactivate groupServer
+    message -> db : 分页查询消息数据
+    activate db
+    db --> message : 分页查询结果
+    deactivate db
+    message --> user : 分页聊天记录结果数据
+end
+@enduml

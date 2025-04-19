@@ -7,11 +7,15 @@ import com.lb.im.platform.common.exception.IMException;
 import com.lb.im.platform.common.model.entity.GroupMessage;
 import com.lb.im.platform.common.model.enums.HttpCode;
 import com.lb.im.platform.common.model.enums.MessageStatus;
+import com.lb.im.platform.common.model.vo.GroupMessageVO;
 import com.lb.im.platform.common.utils.BeanUtils;
 import com.lb.im.platform.message.domain.event.IMGroupMessageTxEvent;
 import com.lb.im.platform.message.domain.repository.GroupMessageRepository;
 import com.lb.im.platform.message.domain.service.GroupMessageDomainService;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 群聊消息领域服务实现类
@@ -35,13 +39,13 @@ public class GroupMessageDomainServiceImpl extends ServiceImpl<GroupMessageRepos
         if (imGroupMessageTxEvent == null || imGroupMessageTxEvent.getGroupMessageDTO() == null) {
             throw new IMException(HttpCode.PARAMS_ERROR);
         }
-        
+
         // 事件对象转换为消息实体
         GroupMessage groupMessage = BeanUtils.copyProperties(imGroupMessageTxEvent, GroupMessage.class);
         if (groupMessage == null) {
             throw new IMException(HttpCode.PROGRAM_ERROR, "转换群聊消息失败");
         }
-        
+
         // 设置消息实体属性
         groupMessage.setId(imGroupMessageTxEvent.getId());  // 使用事件中的ID作为消息ID
         groupMessage.setGroupId(imGroupMessageTxEvent.getGroupMessageDTO().getGroupId());  // 设置群组ID
@@ -56,7 +60,7 @@ public class GroupMessageDomainServiceImpl extends ServiceImpl<GroupMessageRepos
         if (CollectionUtil.isNotEmpty(imGroupMessageTxEvent.getGroupMessageDTO().getAtUserIds())) {
             groupMessage.setAtUserIds(StrUtil.join(",", imGroupMessageTxEvent.getGroupMessageDTO().getAtUserIds()));
         }
-        
+
         // 保存或更新消息实体
         return this.saveOrUpdate(groupMessage);
     }
@@ -71,5 +75,20 @@ public class GroupMessageDomainServiceImpl extends ServiceImpl<GroupMessageRepos
     @Override
     public boolean checkExists(Long messageId) {
         return baseMapper.checkExists(messageId) != null;
+    }
+
+    @Override
+    public List<GroupMessageVO> getUnreadGroupMessageList(Long groupId, Date sendTime, Long sendId, Integer status, Long maxReadId, Integer limitCount) {
+        return baseMapper.getUnreadGroupMessageList(groupId, sendTime, sendId, status, maxReadId, limitCount);
+    }
+
+    @Override
+    public List<GroupMessageVO> loadGroupMessageList(Long minId, Date minDate, List<Long> ids, Integer status, Integer limitCount) {
+        return baseMapper.loadGroupMessageList(minId, minDate, ids, status, limitCount);
+    }
+
+    @Override
+    public List<GroupMessageVO> getHistoryMessage(Long groupId, Date sendTime, Integer status, long stIdx, long size) {
+        return baseMapper.getHistoryMessage(groupId, sendTime, status, stIdx, size);
     }
 }
