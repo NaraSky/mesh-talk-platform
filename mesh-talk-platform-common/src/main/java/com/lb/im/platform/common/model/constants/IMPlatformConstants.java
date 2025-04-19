@@ -13,6 +13,36 @@ public class IMPlatformConstants {
     public static final String PLATFORM_REDIS_USER_KEY = "platform:user:";
 
     /**
+     * 大后端平台的好友key
+     */
+    public static final String PLATFORM_REDIS_FRIEND_KEY = "platform:friend:";
+
+    /**
+     * 好友列表
+     */
+    public static final String PLATFORM_REDIS_FRIEND_LIST_KEY = "platform:friend:list:";
+
+    /**
+     * 用户
+     */
+    public static final String PLATFORM_REDIS_FRIEND_LIST_USER = "user:";
+
+    /**
+     * 用户vo
+     */
+    public static final String PLATFORM_REDIS_FRIEND_LIST_USERVO = "uservo:";
+
+    /**
+     * id列表
+     */
+    public static final String PLATFORM_REDIS_FRIEND_LIST_IDS = "ids:";
+
+    /**
+     * 是否是好友关系
+     */
+    public static final String PLATFORM_REDIS_FRIEND_SET_KEY = "platform:friend:set:";
+
+    /**
      * Session数据
      */
     public static final String SESSION = "session";
@@ -41,6 +71,11 @@ public class IMPlatformConstants {
      * 用户事件Topic
      */
     public static final String TOPIC_EVENT_ROCKETMQ_USER = "topic_event_rocketmq_user";
+
+    /**
+     * 好友事件Topic
+     */
+    public static final String TOPIC_EVENT_ROCKETMQ_FRIEND = "topic_event_rocketmq_friend";
 
     /**
      * Cola订阅事件
