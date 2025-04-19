@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.lb.im.common.cache.distribute.DistributedCacheService;
 import com.lb.im.platform.common.model.constants.IMPlatformConstants;
 import com.lb.im.platform.group.appliication.cache.GroupCacheService;
-import com.lb.im.platform.group.domain.command.GroupParams;
+import com.lb.im.platform.common.model.params.GroupParams;
 import com.lb.im.platform.group.domain.event.IMGroupEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -180,9 +180,19 @@ public class IMPlatformConstants {
     public static final String TOPIC_PRIVATE_TX_MESSAGE_GROUP = "topic_private_message_save_group";
 
     /**
+     * 群聊事务消息分组
+     */
+    public static final String TOPIC_GROUP_TX_MESSAGE_GROUP = "topic_group_tx_message_group";
+
+    /**
      * 保存单聊消息Topic
      */
-    public static final String TOPIC_PRIVATE_TX_MESSAGE = "topic_private_message_save";
+    public static final String TOPIC_PRIVATE_TX_MESSAGE = "topic_private_tx_message";
+
+    /**
+     * 单聊事务消息topic
+     */
+    public static final String TOPIC_GROUP_TX_MESSAGE = "topic_group_tx_message";
 
     /**
      * Cola订阅事件
@@ -213,6 +223,15 @@ public class IMPlatformConstants {
      * 好友事件消费分组
      */
     public static final String EVENT_FRIEND_CONSUMER_GROUP = "event_friend_consumer_group";
+
+    /**
+     * 单聊消息
+     */
+    public static final String TYPE_MESSAGE_PRIVATE = "type_private";
+    /**
+     * 群聊消息
+     */
+    public static final String TYPE_MESSAGE_GROUP = "type_group";
 
     /**
      * 默认Dubbo版本

@@ -1,8 +1,8 @@
 package com.lb.im.platform.dubbo.group;
 
 
+import com.lb.im.platform.common.model.params.GroupParams;
 import com.lb.im.platform.common.model.vo.GroupMemberSimpleVO;
-import org.redisson.api.search.aggregate.GroupParams;
 
 import java.util.List;
 

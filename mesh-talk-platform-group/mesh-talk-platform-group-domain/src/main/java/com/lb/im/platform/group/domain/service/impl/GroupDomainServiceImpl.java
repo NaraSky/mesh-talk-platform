@@ -8,7 +8,7 @@ import com.lb.im.platform.common.model.entity.Group;
 import com.lb.im.platform.common.model.enums.HttpCode;
 import com.lb.im.platform.common.model.vo.GroupVO;
 import com.lb.im.platform.common.utils.BeanUtils;
-import com.lb.im.platform.group.domain.command.GroupParams;
+import com.lb.im.platform.common.model.params.GroupParams;
 import com.lb.im.platform.group.domain.repository.GroupMemberRepository;
 import com.lb.im.platform.group.domain.repository.GroupRepository;
 import com.lb.im.platform.group.domain.service.GroupDomainService;

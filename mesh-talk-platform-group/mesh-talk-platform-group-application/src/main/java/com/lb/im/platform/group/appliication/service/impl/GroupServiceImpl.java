@@ -21,7 +21,7 @@ import com.lb.im.platform.common.session.UserSession;
 import com.lb.im.platform.dubbo.friend.FriendDubboService;
 import com.lb.im.platform.dubbo.user.UserDubboService;
 import com.lb.im.platform.group.appliication.service.GroupService;
-import com.lb.im.platform.group.domain.command.GroupParams;
+import com.lb.im.platform.common.model.params.GroupParams;
 import com.lb.im.platform.group.domain.event.IMGroupEvent;
 import com.lb.im.platform.group.domain.service.GroupDomainService;
 import com.lb.im.platform.group.domain.service.GroupMemberDomainService;

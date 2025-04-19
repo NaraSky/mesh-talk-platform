@@ -1,6 +1,11 @@
-package com.lb.im.platform.group.domain.command;
+package com.lb.im.platform.common.model.params;
 
-public class GroupParams {
+import java.io.Serializable;
+
+public class GroupParams implements Serializable {
+
+    private static final long serialVersionUID = -3408620084727659032L;
+
     /**
      * 用户id
      */
@@ -18,7 +23,7 @@ public class GroupParams {
         this.groupId = groupId;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return userId == null || groupId == null;
     }
 

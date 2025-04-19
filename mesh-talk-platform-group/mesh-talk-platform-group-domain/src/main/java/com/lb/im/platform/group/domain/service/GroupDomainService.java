@@ -3,7 +3,7 @@ package com.lb.im.platform.group.domain.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lb.im.platform.common.model.entity.Group;
 import com.lb.im.platform.common.model.vo.GroupVO;
-import com.lb.im.platform.group.domain.command.GroupParams;
+import com.lb.im.platform.common.model.params.GroupParams;
 
 import java.util.List;
 
